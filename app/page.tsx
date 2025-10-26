@@ -289,7 +289,7 @@ export default function Home() {
           </div>
 
           <div className="text-center mt-16">
-            <Button className="bg-[#D4B896] hover:bg-[#C9A870] hover:scale-105 hover:shadow-lg text-[#3A3A2A] font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
+            <Button className="bg-accent hover:bg-accent/90 hover:scale-105 hover:shadow-lg text-accent-foreground font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
               <Plus className="w-5 h-5 mr-2" />
               Get Started
             </Button>
@@ -303,11 +303,11 @@ export default function Home() {
           <div className="space-y-6">
             <div className="bg-card/50 rounded-3xl p-8 border border-border">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-[#D4B896] text-sm font-mono">
+                <p className="text-accent text-sm font-mono">
                   [ PIPELINE GENERATED ]
                 </p>
                 <svg
-                  className="w-6 h-6 text-[#D4B896]"
+                  className="w-6 h-6 text-accent"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -325,11 +325,11 @@ export default function Home() {
 
             <div className="bg-card/50 rounded-3xl p-8 border border-border">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-[#D4B896] text-sm font-mono">
+                <p className="text-accent text-sm font-mono">
                   [ TOTAL IMPRESSIONS ]
                 </p>
                 <svg
-                  className="w-6 h-6 text-[#D4B896]"
+                  className="w-6 h-6 text-accent"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -347,11 +347,11 @@ export default function Home() {
 
             <div className="bg-card/50 rounded-3xl p-8 border border-border">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-[#D4B896] text-sm font-mono">
+                <p className="text-accent text-sm font-mono">
                   [ MEETINGS BOOKED ]
                 </p>
                 <svg
-                  className="w-6 h-6 text-[#D4B896]"
+                  className="w-6 h-6 text-accent"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -375,7 +375,7 @@ export default function Home() {
                 ].map((height, i) => (
                   <div
                     key={i}
-                    className="flex-1 bg-[#D4B896] rounded-t"
+                    className="flex-1 bg-accent rounded-t"
                     style={{ height: `${height}%` }}
                   ></div>
                 ))}
@@ -389,10 +389,10 @@ export default function Home() {
       <section className="py-32 px-6 bg-gradient-to-b from-card to-background">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
-            <p className="text-[#5A5A4A] text-sm font-mono mb-4">
+            <p className="text-muted-foreground text-sm font-mono mb-4">
               [ BUILT TO CONVERT ]
             </p>
-            <h2 className="text-5xl lg:text-6xl font-bold text-[#3A3A2A] mb-12">
+            <h2 className="text-5xl lg:text-6xl font-bold text-foreground mb-12">
               The message to everyone is a message to no one.
             </h2>
           </div>
@@ -401,20 +401,20 @@ export default function Home() {
             <h3 className="text-3xl font-bold text-foreground mb-8">
               Traditional outbound is dead...
             </h3>
-            <p className="text-5xl font-bold text-[#D4B896] mb-8">
+            <p className="text-5xl font-bold text-accent mb-8">
               Content is king.
             </p>
-            <Button className="bg-[#D4B896] hover:bg-[#C9A870] hover:scale-105 hover:shadow-lg text-[#3A3A2A] font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
+            <Button className="bg-accent hover:bg-accent/90 hover:scale-105 hover:shadow-lg text-accent-foreground font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
               <Plus className="w-5 h-5 mr-2" />
               Get started
             </Button>
           </div>
 
-          <div className="mt-12 bg-[#4A4032] rounded-3xl p-12 border border-cream-300/20">
-            <p className="text-[#D4B896] text-sm font-mono mb-4">
+          <div className="mt-12 bg-secondary rounded-3xl p-12 border border-border">
+            <p className="text-accent text-sm font-mono mb-4">
               [ TOP SECRET ]
             </p>
-            <h3 className="text-3xl font-bold text-foreground mb-6">
+            <h3 className="text-3xl font-bold text-secondary-foreground mb-6">
               Coming soon..
             </h3>
             <p className="text-muted-foreground text-lg mb-8 max-w-2xl">
@@ -422,7 +422,7 @@ export default function Home() {
               your company. If you run marketing at a 200+ person company, we
               have limited spots for design partners.
             </p>
-            <Button className="bg-[#D4B896] hover:bg-[#C9A870] hover:scale-105 hover:shadow-lg text-[#3A3A2A] font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
+            <Button className="bg-accent hover:bg-accent/90 hover:scale-105 hover:shadow-lg text-accent-foreground font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
               <Plus className="w-5 h-5 mr-2" />
               Inquire within
             </Button>
@@ -493,7 +493,7 @@ export default function Home() {
               </a>
             </div>
 
-            <Button className="bg-[#D4B896] hover:bg-[#C9A870] hover:scale-105 hover:shadow-lg text-[#3A3A2A] font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
+            <Button className="bg-accent hover:bg-accent/90 hover:scale-105 hover:shadow-lg text-accent-foreground font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
               <Plus className="w-5 h-5 mr-2" />
               Get Started
             </Button>
