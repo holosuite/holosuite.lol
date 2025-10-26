@@ -79,7 +79,7 @@ export default function Home() {
         className="py-32 px-6 bg-gradient-to-b from-background to-card"
       >
         <div className="container mx-auto">
-          <div className="mb-20">
+          <div className="mb-20 flex justify-center">
             <div className="inline-block">
               <h2 className="text-5xl font-bold text-foreground mb-2">
                 How it works
