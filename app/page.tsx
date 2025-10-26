@@ -175,59 +175,6 @@ export default function Home() {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-16 max-w-6xl mx-auto">
-            {/* Step 001 */}
-            <div className="space-y-6">
-              <div className="bg-card/50 rounded-3xl p-8 border border-border backdrop-blur-sm">
-                <div className="aspect-square bg-gradient-to-br from-card/10 to-transparent rounded-2xl mb-6 overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-card/30 to-card/10 flex items-center justify-center">
-                    <div className="text-muted-foreground text-lg font-medium text-center">
-                      <div className="text-2xl mb-2">🎨</div>
-                      <div>Simulation Designer</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <p className="text-muted-foreground text-sm font-mono">
-                  [ 001 ]
-                </p>
-                <h3 className="text-3xl font-bold text-foreground">
-                  Meet your simulation designer
-                </h3>
-                <p className="text-muted-foreground text-lg">
-                  We pair you with a simulation agnent who designs
-                  immersive experiences tailored to your entertainment needs and
-                  objectives.
-                </p>
-              </div>
-            </div>
-
-            {/* Step 002 */}
-            <div className="space-y-6">
-              <div className="bg-card/50 rounded-3xl p-8 border border-border backdrop-blur-sm">
-                <div className="aspect-square bg-gradient-to-br from-card/10 to-transparent rounded-2xl mb-6 overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-card/30 to-card/10 flex items-center justify-center">
-                    <div className="text-muted-foreground text-lg font-medium text-center">
-                      <div className="text-2xl mb-2">🤖</div>
-                      <div>AI Simulation</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <p className="text-muted-foreground text-sm font-mono">
-                  [ 002 ]
-                </p>
-                <h3 className="text-3xl font-bold text-foreground">
-                  Advanced AI simulation
-                </h3>
-                <p className="text-muted-foreground text-lg">
-                  Our AI systems create dynamic, responsive environments that
-                  adapt to user interactions in real-time.
-                </p>
-              </div>
-            </div>
-
             {/* Step 003 */}
             <div className="space-y-6">
               <div className="bg-card/50 rounded-3xl p-8 border border-border backdrop-blur-sm">
@@ -235,7 +182,7 @@ export default function Home() {
                   <div className="w-full h-full bg-gradient-to-br from-card/30 to-card/10 flex items-center justify-center">
                     <div className="text-muted-foreground text-lg font-medium text-center">
                       <div className="text-2xl mb-2">✨</div>
-                      <div>Human Creativity</div>
+                      <div>AI Creativity</div>
                     </div>
                   </div>
                 </div>
@@ -248,8 +195,8 @@ export default function Home() {
                   Human creativity
                 </h3>
                 <p className="text-muted-foreground text-lg">
-                  Our designers craft compelling narratives and experiences that
-                  blend cutting-edge technology with human storytelling.
+                  Our agents craft compelling narratives and experiences with
+                  cutting-edge technology.
                 </p>
               </div>
             </div>
