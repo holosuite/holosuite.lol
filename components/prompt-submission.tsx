@@ -61,7 +61,7 @@ export function PromptSubmission() {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="Describe the simulation you'd like to create... (e.g., 'A space exploration game where players discover new planets and civilizations')"
-            className="min-h-[160px] resize-none text-lg p-6 placeholder:text-lg placeholder:italic placeholder:opacity-60"
+            className="min-h-[160px] resize-none text-xl p-6 placeholder:text-lg placeholder:italic placeholder:opacity-60"
             disabled={isSubmitting}
           />
         </div>
