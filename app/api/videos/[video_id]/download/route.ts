@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { VideoModel } from "@/lib/database";
+import { put } from "@vercel/blob";
+import { videoGenerationService } from "@/lib/ai-video-service";
 
 // GET /api/videos/[video_id]/download - Download video file
 export async function GET(
@@ -10,7 +12,7 @@ export async function GET(
     const resolvedParams = await params;
 
     // Get video record
-    const video = VideoModel.getById(resolvedParams.video_id);
+    const video = await VideoModel.getById(resolvedParams.video_id);
     if (!video) {
       return NextResponse.json({ error: "Video not found" }, { status: 404 });
     }
@@ -48,7 +50,7 @@ export async function POST(
     const resolvedParams = await params;
 
     // Get video record
-    const video = VideoModel.getById(resolvedParams.video_id);
+    const video = await VideoModel.getById(resolvedParams.video_id);
     if (!video) {
       return NextResponse.json({ error: "Video not found" }, { status: 404 });
     }
@@ -60,50 +62,46 @@ export async function POST(
       );
     }
 
-    // Check if we have a local cached version
-    const localVideoPath = join(
-      process.cwd(),
-      "public",
-      "videos",
-      `${video.id}.mp4`,
-    );
-
-    if (existsSync(localVideoPath)) {
-      // Return local file URL for streaming
+    // Check if it's already a Vercel Blob URL
+    if (video.video_url.includes("blob.vercel-storage.com")) {
       return NextResponse.json({
-        videoUrl: `/videos/${video.id}.mp4`,
-        isLocal: true,
+        videoUrl: video.video_url,
+        isPersistent: true,
       });
     }
 
-    // Download and cache if not local
+    // Download and upload to Vercel Blob for persistent storage
     try {
       const videoBuffer = await videoGenerationService.downloadVideo(
-        video.video_url,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        video.video_url as any,
       );
 
-      // Ensure videos directory exists
-      const videosDir = join(process.cwd(), "public", "videos");
-      if (!existsSync(videosDir)) {
-        await mkdir(videosDir, { recursive: true });
-      }
+      // Upload to Vercel Blob
+      const blob = await put(`${video.id}.mp4`, videoBuffer, {
+        access: "public",
+        contentType: "video/mp4",
+      });
 
-      // Save to local storage
-      await writeFile(localVideoPath, videoBuffer);
+      // Update video record with persistent URL
+      await VideoModel.updateUrl(video.id, blob.url);
 
-      console.log("✅ Video cached for streaming:", { videoId: video.id });
+      console.log("✅ Video uploaded to Vercel Blob:", {
+        videoId: video.id,
+        blobUrl: blob.url,
+      });
 
       return NextResponse.json({
-        videoUrl: `/videos/${video.id}.mp4`,
-        isLocal: true,
+        videoUrl: blob.url,
+        isPersistent: true,
       });
     } catch (downloadError) {
-      console.error("❌ Error caching video:", downloadError);
+      console.error("❌ Error uploading video to blob:", downloadError);
 
       // Return original URL as fallback
       return NextResponse.json({
         videoUrl: video.video_url,
-        isLocal: false,
+        isPersistent: false,
       });
     }
   } catch (error) {

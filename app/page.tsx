@@ -1,12 +1,8 @@
 import { PromptSubmission } from "@/components/prompt-submission";
+import Link from "next/link";
 
 export default function Home() {
-  const models = [
-    "Claude 4.5",
-    "GPT-5",
-    "Gemini 2.5",
-    "Grok 4",
-  ];
+  const models = ["Claude 4.5", "GPT-5", "Gemini 2.5", "Grok 4"];
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -26,12 +22,12 @@ export default function Home() {
             >
               How It Works
             </a>
-            <a
+            <Link
               href="/simulations"
               className="text-foreground hover:text-primary transition"
             >
               Simulations
-            </a>
+            </Link>
           </div>
         </div>
       </nav>
@@ -50,12 +46,22 @@ export default function Home() {
       <section className="py-20 px-6 bg-card/30">
         <div className="container mx-auto max-w-4xl">
           <div className="text-center space-y-6">
-            <p className="text-sm font-mono text-primary tracking-wider">THE NEXT GENERATION OF ENTERTAINMENT</p>
+            <p className="text-sm font-mono text-primary tracking-wider">
+              THE NEXT GENERATION OF ENTERTAINMENT
+            </p>
             <h2 className="text-4xl lg:text-5xl font-bold text-foreground">
               The software behind the Holodeck
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Where are the all-in-one, commercialized holodeck-like experiences? The software problem is complex, but with cutting-edge generative AI, we're pushing boundaries. Holosuite Entertainment is building the infrastructure for developing and running holodeck programs—<span className="text-foreground font-semibold">Holodeck-as-a-Service</span>.
+              Where are the all-in-one, commercialized holodeck-like
+              experiences? The software problem is complex, but with
+              cutting-edge generative AI, we&apos;re pushing boundaries.
+              Holosuite Entertainment is building the infrastructure for
+              developing and running holodeck programs—
+              <span className="text-foreground font-semibold">
+                Holodeck-as-a-Service
+              </span>
+              .
             </p>
           </div>
         </div>
@@ -69,7 +75,10 @@ export default function Home() {
           </p>
           <div className="flex items-center justify-center gap-8 flex-wrap">
             {models.map((model, key) => (
-              <div key={key} className="px-6 py-3 bg-card rounded-full border border-border">
+              <div
+                key={key}
+                className="px-6 py-3 bg-card rounded-full border border-border"
+              >
                 <span className="text-sm font-medium text-foreground">
                   {model}
                 </span>
@@ -113,7 +122,8 @@ export default function Home() {
                   Describe your vision
                 </h3>
                 <p className="text-muted-foreground text-base">
-                  Simply describe the simulation you want to create in natural language. Our AI understands your intent and requirements.
+                  Simply describe the simulation you want to create in natural
+                  language. Our AI understands your intent and requirements.
                 </p>
               </div>
             </div>
@@ -136,7 +146,9 @@ export default function Home() {
                   AI builds your simulation
                 </h3>
                 <p className="text-muted-foreground text-base">
-                  Google Gemini AI generates comprehensive simulation specifications, character holograms, and interactive story elements.
+                  Google Gemini AI generates comprehensive simulation
+                  specifications, character holograms, and interactive story
+                  elements.
                 </p>
               </div>
             </div>
@@ -159,7 +171,8 @@ export default function Home() {
                   Interact with AI characters
                 </h3>
                 <p className="text-muted-foreground text-base">
-                  AI-generated holograms bring your simulation to life with responsive, contextual interactions and unique personalities.
+                  AI-generated holograms bring your simulation to life with
+                  responsive, contextual interactions and unique personalities.
                 </p>
               </div>
             </div>
@@ -182,7 +195,8 @@ export default function Home() {
                   Experience your world
                 </h3>
                 <p className="text-muted-foreground text-base">
-                  Dive into fully immersive simulations with turn-based storytelling, dynamic responses, and evolving narratives.
+                  Dive into fully immersive simulations with turn-based
+                  storytelling, dynamic responses, and evolving narratives.
                 </p>
               </div>
             </div>
@@ -208,9 +222,12 @@ export default function Home() {
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <span className="text-2xl">📚</span>
               </div>
-              <h3 className="text-xl font-bold text-foreground">Choose your story</h3>
+              <h3 className="text-xl font-bold text-foreground">
+                Choose your story
+              </h3>
               <p className="text-muted-foreground">
-                Select from our curated library of interactive holographic programs or create your own custom simulation from scratch.
+                Select from our curated library of interactive holographic
+                programs or create your own custom simulation from scratch.
               </p>
             </div>
 
@@ -219,9 +236,13 @@ export default function Home() {
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <span className="text-2xl">🎮</span>
               </div>
-              <h3 className="text-xl font-bold text-foreground">Live the experience</h3>
+              <h3 className="text-xl font-bold text-foreground">
+                Live the experience
+              </h3>
               <p className="text-muted-foreground">
-                Step into your character's shoes. Each turn, choose from AI-suggested actions or craft your own path through the narrative.
+                Step into your character&apos;s shoes. Each turn, choose from
+                AI-suggested actions or craft your own path through the
+                narrative.
               </p>
             </div>
 
@@ -230,9 +251,12 @@ export default function Home() {
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <span className="text-2xl">🎬</span>
               </div>
-              <h3 className="text-xl font-bold text-foreground">Keep the memories</h3>
+              <h3 className="text-xl font-bold text-foreground">
+                Keep the memories
+              </h3>
               <p className="text-muted-foreground">
-                Your journey becomes a cinematic keepsake. AI generates a recap video from your adventure's highlights using Veo 3.
+                Your journey becomes a cinematic keepsake. AI generates a recap
+                video from your adventure&apos;s highlights using Veo 3.
               </p>
             </div>
           </div>
@@ -243,12 +267,16 @@ export default function Home() {
       <section className="py-32 px-6 bg-gradient-to-b from-card to-background">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
-            <p className="text-sm font-mono text-primary tracking-wider mb-4">CORE CAPABILITIES</p>
+            <p className="text-sm font-mono text-primary tracking-wider mb-4">
+              CORE CAPABILITIES
+            </p>
             <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6">
               Holodeck infrastructure, powered by AI
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Combining vast databases, intelligent control systems, and generative AI to create the next generation of immersive entertainment.
+              Combining vast databases, intelligent control systems, and
+              generative AI to create the next generation of immersive
+              entertainment.
             </p>
           </div>
 
@@ -260,9 +288,13 @@ export default function Home() {
                   <span className="text-xl">🗄️</span>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-bold text-foreground">Vast simulation database</h3>
+                  <h3 className="text-xl font-bold text-foreground">
+                    Vast simulation database
+                  </h3>
                   <p className="text-muted-foreground">
-                    Access a Netflix-like library of holographic programs. Project detailed historical events, fictional worlds, and custom scenarios with incredible accuracy.
+                    Access a Netflix-like library of holographic programs.
+                    Project detailed historical events, fictional worlds, and
+                    custom scenarios with incredible accuracy.
                   </p>
                 </div>
               </div>
@@ -275,9 +307,13 @@ export default function Home() {
                   <span className="text-xl">👁️</span>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-bold text-foreground">Perceptual AI agents</h3>
+                  <h3 className="text-xl font-bold text-foreground">
+                    Perceptual AI agents
+                  </h3>
                   <p className="text-muted-foreground">
-                    Holographic characters with unique personalities maintain immersion, responding naturally without breaking the fourth wall.
+                    Holographic characters with unique personalities maintain
+                    immersion, responding naturally without breaking the fourth
+                    wall.
                   </p>
                 </div>
               </div>
@@ -290,9 +326,13 @@ export default function Home() {
                   <span className="text-xl">🎙️</span>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-bold text-foreground">Natural control systems</h3>
+                  <h3 className="text-xl font-bold text-foreground">
+                    Natural control systems
+                  </h3>
                   <p className="text-muted-foreground">
-                    Control programs via voice commands, intuitive interfaces, or custom prompts. "Computer, end program" when you're ready to exit.
+                    Control programs via voice commands, intuitive interfaces,
+                    or custom prompts. &quot;Computer, end program&quot; when
+                    you&apos;re ready to exit.
                   </p>
                 </div>
               </div>
@@ -305,9 +345,13 @@ export default function Home() {
                   <span className="text-xl">✨</span>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-bold text-foreground">Dynamic content generation</h3>
+                  <h3 className="text-xl font-bold text-foreground">
+                    Dynamic content generation
+                  </h3>
                   <p className="text-muted-foreground">
-                    Each story turn generates contextual descriptions and images. AI maintains visual continuity throughout your adventure.
+                    Each story turn generates contextual descriptions and
+                    images. AI maintains visual continuity throughout your
+                    adventure.
                   </p>
                 </div>
               </div>
@@ -321,18 +365,26 @@ export default function Home() {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center space-y-8">
             <div className="space-y-4">
-              <p className="text-sm font-mono text-primary tracking-wider">THE FUTURE OF ENTERTAINMENT</p>
+              <p className="text-sm font-mono text-primary tracking-wider">
+                THE FUTURE OF ENTERTAINMENT
+              </p>
               <h2 className="text-5xl lg:text-6xl font-bold text-foreground">
                 Built for creators and storytellers
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                Whether you're creating interactive fiction, educational simulations, or immersive entertainment experiences, Holosuite provides the infrastructure to bring your vision to life.
+                Whether you&apos;re creating interactive fiction, educational
+                simulations, or immersive entertainment experiences, Holosuite
+                provides the infrastructure to bring your vision to life.
               </p>
             </div>
             <div className="pt-8">
               <blockquote className="text-lg italic text-muted-foreground max-w-2xl mx-auto border-l-4 border-primary pl-6">
-                "I have no interest in altering someone's perception of who they are and what the world is… other than that they might understand that it's also funny."
-                <footer className="text-sm font-medium text-foreground mt-2">— Brent Spiner</footer>
+                &quot;I have no interest in altering someone&apos;s perception
+                of who they are and what the world is… other than that they
+                might understand that it&apos;s also funny.&quot;
+                <footer className="text-sm font-medium text-foreground mt-2">
+                  — Brent Spiner
+                </footer>
               </blockquote>
             </div>
           </div>
@@ -348,7 +400,8 @@ export default function Home() {
                 Ready to explore new worlds?
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Start creating your own holographic simulations today. The only limit is your imagination.
+                Start creating your own holographic simulations today. The only
+                limit is your imagination.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -358,19 +411,19 @@ export default function Home() {
               >
                 Create Simulation
               </a>
-              <a
+              <Link
                 href="/simulations"
                 className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-medium rounded-full px-8 py-4 text-lg transition-all hover:scale-105"
               >
                 Browse Library
-              </a>
+              </Link>
             </div>
             <div className="pt-8 border-t border-border">
               <p className="text-2xl font-mono text-primary tracking-wide">
                 🖖 Live long and prosper
               </p>
               <p className="text-sm text-muted-foreground mt-2">
-                "Computer, end program"
+                &quot;Computer, end program&quot;
               </p>
             </div>
           </div>

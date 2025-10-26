@@ -61,7 +61,7 @@ export async function POST(
     const userMessage = createUserMessage(content);
     await MessageModel.create(
       id,
-      userMessage.from,
+      userMessage.fromRole,
       userMessage.content,
       userMessage.name,
       userMessage.avatar,
@@ -72,7 +72,7 @@ export async function POST(
     const assistantMessage = createAssistantMessage(aiResponse);
     await MessageModel.create(
       id,
-      assistantMessage.from,
+      assistantMessage.fromRole,
       assistantMessage.content,
       assistantMessage.name,
       assistantMessage.avatar,
@@ -153,7 +153,7 @@ Please update the simulation object based on this request while maintaining cons
     const userMessage = createUserMessage(updatePrompt);
     await MessageModel.create(
       id,
-      userMessage.from,
+      userMessage.fromRole,
       userMessage.content,
       userMessage.name,
       userMessage.avatar,
@@ -164,7 +164,7 @@ Please update the simulation object based on this request while maintaining cons
     const assistantMessage = createAssistantMessage(aiResponse);
     await MessageModel.create(
       id,
-      assistantMessage.from,
+      assistantMessage.fromRole,
       assistantMessage.content,
       assistantMessage.name,
       assistantMessage.avatar,

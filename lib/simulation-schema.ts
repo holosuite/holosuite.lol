@@ -6,16 +6,7 @@ export const SimulationSchema = z.object({
   description: z
     .string()
     .describe("A detailed description of what the simulation does"),
-  type: z
-    .enum([
-      "game",
-      "training",
-      "educational",
-      "entertainment",
-      "research",
-      "business",
-    ])
-    .describe("The primary type/category of simulation"),
+  type: z.string().describe("The primary type/category of simulation"),
   genre: z
     .string()
     .optional()
@@ -60,8 +51,15 @@ export const SimulationSchema = z.object({
       z.object({
         title: z.string(),
         description: z.string(),
-        type: z.enum(["primary", "secondary", "optional", "hidden"]),
-        difficulty: z.enum(["easy", "medium", "hard", "expert"]).optional(),
+        type: z
+          .string()
+          .describe(
+            "Type of objective (e.g., primary, secondary, optional, hidden)",
+          ),
+        difficulty: z
+          .string()
+          .optional()
+          .describe("Difficulty level (e.g., easy, medium, hard, expert)"),
       }),
     )
     .describe("Goals, missions, or objectives in the simulation"),

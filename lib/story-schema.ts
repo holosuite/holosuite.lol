@@ -85,8 +85,9 @@ export type TurnData = z.infer<typeof TurnDataSchema>;
 export const RunDataSchema = z.object({
   id: z.string(),
   simulation_id: z.string(),
-  user_hologram_id: z.string(),
-  status: z.enum(["active", "completed", "abandoned"]),
+  status: z
+    .string()
+    .describe("Run status (e.g., active, completed, abandoned)"),
   current_turn: z.number(),
   created_at: z.string(),
   updated_at: z.string(),
@@ -99,7 +100,9 @@ export const VideoDataSchema = z.object({
   id: z.string(),
   run_id: z.string(),
   video_url: z.string().optional(),
-  status: z.enum(["generating", "completed", "failed"]),
+  status: z
+    .string()
+    .describe("Video status (e.g., generating, completed, failed)"),
   generation_prompt: z.string().optional(),
   created_at: z.string(),
   completed_at: z.string().optional(),

@@ -43,7 +43,8 @@ export function StorySimulationsList() {
                 const simObj = JSON.parse(sim.simulation_object || "{}");
                 return {
                   id: sim.id,
-                  title: simObj.story?.title || "Unknown Story",
+                  title:
+                    simObj.title || simObj.story?.title || "Interactive Story",
                   description: simObj.story?.description || "",
                   genre: simObj.story?.genre || "",
                   setting: simObj.story?.setting || "",

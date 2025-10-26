@@ -10,7 +10,7 @@ export async function GET(
     const resolvedParams = await params;
 
     // Get video record
-    const video = VideoModel.getById(resolvedParams.video_id);
+    const video = await VideoModel.getById(resolvedParams.video_id);
     if (!video) {
       return NextResponse.json({ error: "Video not found" }, { status: 404 });
     }

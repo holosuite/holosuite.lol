@@ -3,7 +3,7 @@ import { RefreshCcwIcon, ThumbsUpIcon, ThumbsDownIcon } from "lucide-react";
 
 export interface SimulationMessage {
   key: string;
-  from: "user" | "assistant";
+  fromRole: "user" | "assistant";
   content: string;
   name: string;
   avatar: string;
@@ -37,7 +37,7 @@ export function createInitialMessages(): SimulationMessage[] {
   return [
     {
       key: generateUUID(),
-      from: "assistant",
+      fromRole: "assistant",
       content: SIMULATION_CONSTANTS.WELCOME_MESSAGE,
       name: SIMULATION_CONSTANTS.ASSISTANT_NAME,
       avatar: SIMULATION_CONSTANTS.ASSISTANT_AVATAR,
@@ -48,7 +48,7 @@ export function createInitialMessages(): SimulationMessage[] {
 export function createUserMessage(content: string): SimulationMessage {
   return {
     key: generateUUID(),
-    from: "user",
+    fromRole: "user",
     content,
     name: SIMULATION_CONSTANTS.USER_NAME,
     avatar: SIMULATION_CONSTANTS.USER_AVATAR,
@@ -58,7 +58,7 @@ export function createUserMessage(content: string): SimulationMessage {
 export function createAssistantMessage(content: string): SimulationMessage {
   return {
     key: generateUUID(),
-    from: "assistant",
+    fromRole: "assistant",
     content,
     name: SIMULATION_CONSTANTS.ASSISTANT_NAME,
     avatar: SIMULATION_CONSTANTS.ASSISTANT_AVATAR,

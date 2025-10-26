@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { RunModel, TurnModel, VideoModel } from "@/lib/database";
+import {
+  RunModel,
+  TurnModel,
+  VideoModel,
+  SimulationModel,
+} from "@/lib/database";
 import { videoGenerationService } from "@/lib/ai-video-service";
 
 // Type definition for turn objects
 interface TurnObject {
   ai_response: string;
   user_prompt: string;
-  image_url?: string;
+  image_url?: string | null;
 }
 
 // POST /api/simulations/[simulation_id]/runs/[run_id]/video - Trigger video generation
@@ -18,7 +23,7 @@ export async function POST(
     const resolvedParams = await params;
 
     // Get run details
-    const run = RunModel.getById(resolvedParams.run_id);
+    const run = await RunModel.getById(resolvedParams.run_id);
     if (!run) {
       return NextResponse.json({ error: "Run not found" }, { status: 404 });
     }
@@ -39,8 +44,24 @@ export async function POST(
       );
     }
 
+    // Get simulation details for title
+    const simulation = await SimulationModel.getById(resolvedParams.id);
+    if (!simulation) {
+      return NextResponse.json(
+        { error: "Simulation not found" },
+        { status: 404 },
+      );
+    }
+
+    const simulationObject = JSON.parse(simulation.simulation_object || "{}");
+    const storyTitle =
+      simulationObject.title ||
+      simulationObject.story?.title ||
+      simulationObject.name ||
+      "Interactive Story";
+
     // Get all turns for this run
-    const turns = TurnModel.getByRunId(resolvedParams.run_id);
+    const turns = await TurnModel.getByRunId(resolvedParams.run_id);
     if (turns.length === 0) {
       return NextResponse.json(
         { error: "No turns found for this run" },
@@ -49,7 +70,7 @@ export async function POST(
     }
 
     // Check if video already exists
-    const existingVideos = VideoModel.getByRunId(resolvedParams.run_id);
+    const existingVideos = await VideoModel.getByRunId(resolvedParams.run_id);
     if (existingVideos.length > 0) {
       return NextResponse.json(
         { error: "Video already exists for this run" },
@@ -61,7 +82,7 @@ export async function POST(
     const videoPrompt = buildVideoPrompt(turns);
 
     // Create video record with operation name placeholder
-    const videoId = VideoModel.create(resolvedParams.run_id, videoPrompt);
+    const videoId = await VideoModel.create(resolvedParams.run_id, videoPrompt);
 
     console.log("🎬 Starting video generation:", {
       videoId,
@@ -71,21 +92,33 @@ export async function POST(
 
     // Start video generation
     const videoResult = await videoGenerationService.generateHighlightVideo(
-      turns,
-      "Story Highlights", // We could get the actual story title from simulation
+      turns.map((turn) => ({
+        ...turn,
+        image_url: turn.image_url || undefined,
+        image_prompt: turn.image_prompt || undefined,
+        suggested_options: turn.suggested_options ?? undefined,
+      })),
+      storyTitle, // Use the actual story title
     );
 
-    // Update video record with operation name
-    VideoModel.updateStatus(videoId, "generating");
+    // Update video record with operation object (stored as JSON string)
+    VideoModel.updateStatus(
+      videoId,
+      "generating",
+      JSON.stringify(videoResult.operation),
+    );
+
+    const operationName =
+      (videoResult.operation as { name?: string })?.name || "unknown";
 
     console.log("✅ Video generation started:", {
       videoId,
-      operationName: videoResult.operationName,
+      operationName,
     });
 
     return NextResponse.json({
       videoId,
-      operationName: videoResult.operationName,
+      operationName,
       status: "generating",
       message: "Video generation started",
     });
@@ -107,7 +140,7 @@ export async function GET(
     const resolvedParams = await params;
 
     // Get run details
-    const run = RunModel.getById(resolvedParams.run_id);
+    const run = await RunModel.getById(resolvedParams.run_id);
     if (!run) {
       return NextResponse.json({ error: "Run not found" }, { status: 404 });
     }
@@ -121,7 +154,7 @@ export async function GET(
     }
 
     // Get video records for this run
-    const videos = VideoModel.getByRunId(resolvedParams.run_id);
+    const videos = await VideoModel.getByRunId(resolvedParams.run_id);
     if (videos.length === 0) {
       return NextResponse.json(
         { error: "No video found for this run" },
@@ -134,48 +167,46 @@ export async function GET(
     // If video is still generating, poll the status
     if (video.status === "generating") {
       try {
-        // We need to store the operation name somewhere to poll it
-        // For now, we'll assume it's stored in the generation_prompt field
-        const operationName = video.generation_prompt;
+        // We need to reconstruct the operation object from stored JSON
+        const operationJson = video.video_url;
 
-        if (operationName) {
+        if (operationJson) {
+          const operation = JSON.parse(operationJson);
           const statusResult =
-            await videoGenerationService.pollVideoStatus(operationName);
+            await videoGenerationService.pollVideoStatus(operation);
 
           if (statusResult.status === "completed" && statusResult.videoUrl) {
             // Download and store video in Vercel Blob for persistence
             try {
-              const blobUrl =
-                await videoGenerationService.downloadAndStoreVideo(
-                  statusResult.videoUrl,
-                  video.id,
-                );
+              const videoFile = (
+                statusResult.operation as {
+                  response?: { generatedVideos?: Array<{ video?: unknown }> };
+                }
+              )?.response?.generatedVideos?.[0]?.video;
+              if (videoFile) {
+                const blobUrl =
+                  await videoGenerationService.downloadAndStoreVideo(
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    videoFile as any,
+                    video.id,
+                  );
 
-              // Update video record with completion and blob URL
-              VideoModel.updateStatus(video.id, "completed", blobUrl);
+                // Update video record with completion and blob URL
+                VideoModel.updateStatus(video.id, "completed", blobUrl);
 
-              return NextResponse.json({
-                videoId: video.id,
-                status: "completed",
-                videoUrl: blobUrl,
-                message: "Video generation completed and stored",
-              });
-            } catch (storageError) {
-              console.error("❌ Error storing video:", storageError);
-
-              // Fallback: store original URL
-              VideoModel.updateStatus(
-                video.id,
-                "completed",
-                statusResult.videoUrl,
+                return NextResponse.json({
+                  videoId: video.id,
+                  status: "completed",
+                  videoUrl: blobUrl,
+                  message: "Video generation completed and stored",
+                });
+              }
+            } catch (downloadError) {
+              console.error("❌ Error downloading video:", downloadError);
+              return NextResponse.json(
+                { error: "Video generated but failed to download" },
+                { status: 500 },
               );
-
-              return NextResponse.json({
-                videoId: video.id,
-                status: "completed",
-                videoUrl: statusResult.videoUrl,
-                message: "Video generation completed (temporary URL)",
-              });
             }
           } else if (statusResult.status === "failed") {
             // Update video record with failure

@@ -9,7 +9,6 @@ import {
   Play,
   Download,
   Image as ImageIcon,
-  Users,
   Clock,
   CheckCircle,
   AlertCircle,
@@ -18,6 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { EditableTitle } from "@/components/editable-title";
 
 interface Turn {
   id: string;
@@ -34,6 +34,7 @@ interface RunData {
   id: string;
   status: string;
   currentTurn: number;
+  title?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -47,13 +48,7 @@ interface Simulation {
   estimatedTurns: number;
 }
 
-interface Hologram {
-  id: string;
-  name: string;
-  descriptions: string[];
-  actingInstructions: string[];
-  wardrobe: string[];
-}
+// Hologram interface removed - no longer needed
 
 interface VideoData {
   videoId: string;
@@ -71,7 +66,6 @@ export default function RunDetailPage({
   const resolvedParams = use(params);
   const [runData, setRunData] = useState<RunData | null>(null);
   const [simulation, setSimulation] = useState<Simulation | null>(null);
-  const [hologram, setHologram] = useState<Hologram | null>(null);
   const [turns, setTurns] = useState<Turn[]>([]);
   const [videoData, setVideoData] = useState<VideoData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -81,7 +75,7 @@ export default function RunDetailPage({
   const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
 
   // Check video status
-  const checkVideoStatus = async () => {
+  const checkVideoStatus = useCallback(async () => {
     try {
       const response = await fetch(
         `/api/simulations/${resolvedParams.simulation_id}/runs/${resolvedParams.run_id}/video`,
@@ -100,7 +94,7 @@ export default function RunDetailPage({
     } catch (error) {
       console.error("Error checking video status:", error);
     }
-  };
+  }, [resolvedParams.simulation_id, resolvedParams.run_id]);
 
   // Load run data
   useEffect(() => {
@@ -114,7 +108,6 @@ export default function RunDetailPage({
           const data = await response.json();
           setRunData(data.run);
           setSimulation(data.simulation);
-          setHologram(data.hologram);
           setTurns(data.turns);
 
           // Check for existing video
@@ -134,48 +127,76 @@ export default function RunDetailPage({
     loadRunData();
   }, [resolvedParams.simulation_id, resolvedParams.run_id, checkVideoStatus]);
 
-  // Submit turn
-  const handleSubmitTurn = useCallback(async () => {
-    if (isSubmittingTurn || (!customPrompt.trim() && !selectedOption)) return;
-
-    setIsSubmittingTurn(true);
+  // Update run title
+  const handleTitleUpdate = async (newTitle: string) => {
     try {
-      const prompt = selectedOption || customPrompt.trim();
-
       const response = await fetch(
-        `/api/simulations/${resolvedParams.simulation_id}/runs/${resolvedParams.run_id}/turns`,
+        `/api/simulations/${resolvedParams.simulation_id}/runs/${resolvedParams.run_id}`,
         {
-          method: "POST",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ prompt }),
+          body: JSON.stringify({ title: newTitle }),
         },
       );
 
       if (response.ok) {
-        const data = await response.json();
-        setTurns((prev) => [...prev, data.turn]);
-        setRunData((prev) =>
-          prev ? { ...prev, currentTurn: data.turn.turnNumber } : null,
-        );
-        setCustomPrompt("");
-        setSelectedOption(null);
+        // Update local state
+        setRunData((prev) => (prev ? { ...prev, title: newTitle } : null));
       } else {
-        console.error("Failed to submit turn");
+        throw new Error("Failed to update title");
       }
     } catch (error) {
-      console.error("Error submitting turn:", error);
-    } finally {
-      setIsSubmittingTurn(false);
+      console.error("Error updating title:", error);
+      throw error; // Re-throw to let EditableTitle handle the error
     }
-  }, [
-    resolvedParams.simulation_id,
-    resolvedParams.run_id,
-    customPrompt,
-    selectedOption,
-    isSubmittingTurn,
-  ]);
+  };
+
+  // Submit turn
+  const handleSubmitTurn = useCallback(
+    async (actionText?: string) => {
+      const prompt = actionText || selectedOption || customPrompt.trim();
+      if (isSubmittingTurn || !prompt) return;
+
+      setIsSubmittingTurn(true);
+      try {
+        const response = await fetch(
+          `/api/simulations/${resolvedParams.simulation_id}/runs/${resolvedParams.run_id}/turns`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ prompt }),
+          },
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setTurns((prev) => [...prev, data.turn]);
+          setRunData((prev) =>
+            prev ? { ...prev, currentTurn: data.turn.turnNumber } : null,
+          );
+          setCustomPrompt("");
+          setSelectedOption(null);
+        } else {
+          console.error("Failed to submit turn");
+        }
+      } catch (error) {
+        console.error("Error submitting turn:", error);
+      } finally {
+        setIsSubmittingTurn(false);
+      }
+    },
+    [
+      resolvedParams.simulation_id,
+      resolvedParams.run_id,
+      customPrompt,
+      selectedOption,
+      isSubmittingTurn,
+    ],
+  );
 
   // Generate video
   const handleGenerateVideo = useCallback(async () => {
@@ -199,7 +220,7 @@ export default function RunDetailPage({
         });
 
         // Start polling for completion
-        pollVideoStatus();
+        // Video status will be checked automatically
       } else {
         console.error("Failed to start video generation");
       }
@@ -235,7 +256,9 @@ export default function RunDetailPage({
 
         // Continue polling if still generating
         if (data.status === "generating") {
-          setTimeout(() => pollVideoStatus(), 5000);
+          setTimeout(() => {
+            pollVideoStatus();
+          }, 5000);
         }
       }
     } catch (error) {
@@ -281,7 +304,7 @@ export default function RunDetailPage({
     );
   }
 
-  if (!runData || !simulation || !hologram) {
+  if (!runData || !simulation) {
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
         <div className="text-center">
@@ -312,11 +335,14 @@ export default function RunDetailPage({
                 </Button>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold">{simulation.title}</h1>
+                <EditableTitle
+                  title={runData.title || simulation.title}
+                  onSave={handleTitleUpdate}
+                  placeholder="Enter conversation name..."
+                />
                 <p className="text-muted-foreground">
-                  Playing as{" "}
-                  <span className="font-semibold">{hologram.name}</span> • Turn{" "}
-                  {runData.currentTurn + 1} of {simulation.estimatedTurns}
+                  Detective Mystery • Turn {runData.currentTurn + 1} of{" "}
+                  {simulation.estimatedTurns}
                 </p>
               </div>
             </div>
@@ -423,6 +449,8 @@ export default function RunDetailPage({
                               onClick={() => {
                                 setSelectedOption(option);
                                 setCustomPrompt("");
+                                // Auto-submit the selected option
+                                handleSubmitTurn(option);
                               }}
                             >
                               {option}
@@ -461,7 +489,7 @@ export default function RunDetailPage({
 
                   {/* Submit Button */}
                   <Button
-                    onClick={handleSubmitTurn}
+                    onClick={() => handleSubmitTurn()}
                     disabled={
                       isSubmittingTurn ||
                       (!customPrompt.trim() && !selectedOption)
@@ -476,7 +504,7 @@ export default function RunDetailPage({
                     ) : (
                       <>
                         <Play className="w-4 h-4 mr-2" />
-                        Continue Story
+                        Continue
                       </>
                     )}
                   </Button>
@@ -586,45 +614,6 @@ export default function RunDetailPage({
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Character Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  Playing As: {hologram.name}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-1">
-                    Description:
-                  </p>
-                  <ul className="text-sm space-y-1">
-                    {hologram.descriptions.map((desc, i) => (
-                      <li key={i} className="text-muted-foreground">
-                        • {desc}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-1">
-                    Personality:
-                  </p>
-                  <ul className="text-sm space-y-1">
-                    {hologram.actingInstructions
-                      .slice(0, 3)
-                      .map((instruction, i) => (
-                        <li key={i} className="text-muted-foreground">
-                          • {instruction}
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Story Info */}
             <Card>
               <CardHeader>

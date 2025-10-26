@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  SimulationModel,
-  HologramModel,
-  RunModel,
-  TurnModel,
-} from "@/lib/database";
+import { SimulationModel, RunModel, TurnModel } from "@/lib/database";
 
 // GET /api/simulations/[simulation_id]/runs/[run_id] - Get run details
 export async function GET(
@@ -37,15 +32,6 @@ export async function GET(
       );
     }
 
-    // Get hologram details
-    const hologram = await HologramModel.getById(run.user_hologram_id);
-    if (!hologram) {
-      return NextResponse.json(
-        { error: "Hologram not found" },
-        { status: 404 },
-      );
-    }
-
     // Get all turns for this run
     const turns = await TurnModel.getByRunId(resolvedParams.run_id);
 
@@ -72,23 +58,31 @@ export async function GET(
         id: run.id,
         status: run.status,
         currentTurn: run.current_turn,
+        title:
+          run.title ||
+          simulationObject.title ||
+          simulationObject.story?.title ||
+          "Interactive Story",
         createdAt: run.created_at,
         updatedAt: run.updated_at,
       },
       simulation: {
         id: simulation.id,
-        title: simulationObject.story?.title || "Unknown Story",
-        description: simulationObject.story?.description || "",
-        genre: simulationObject.story?.genre || "",
-        setting: simulationObject.story?.setting || "",
-        estimatedTurns: simulationObject.story?.estimatedTurns || 10,
-      },
-      hologram: {
-        id: hologram.id,
-        name: hologram.name,
-        descriptions: hologram.descriptions,
-        actingInstructions: hologram.acting_instructions,
-        wardrobe: hologram.wardrobe,
+        title:
+          simulationObject.title ||
+          simulationObject.story?.title ||
+          "Interactive Story",
+        description:
+          simulationObject.description ||
+          simulationObject.story?.description ||
+          "",
+        genre: simulationObject.genre || simulationObject.story?.genre || "",
+        setting:
+          simulationObject.setting || simulationObject.story?.setting || "",
+        estimatedTurns:
+          simulationObject.estimatedTurns ||
+          simulationObject.story?.estimatedTurns ||
+          10,
       },
       turns: turns.map((turn) => ({
         id: turn.id,
@@ -110,21 +104,38 @@ export async function GET(
   }
 }
 
-// PATCH /api/simulations/[simulation_id]/runs/[run_id] - Update run status
+// PATCH /api/simulations/[simulation_id]/runs/[run_id] - Update run status or title
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; run_id: string }> },
 ) {
   try {
     const resolvedParams = await params;
-    const { status } = await request.json();
+    const { status, title } = await request.json();
 
-    if (!status || !["active", "completed", "abandoned"].includes(status)) {
+    // Validate that at least one field is provided
+    if (!status && !title) {
+      return NextResponse.json(
+        { error: "Must provide either 'status' or 'title' to update" },
+        { status: 400 },
+      );
+    }
+
+    // Validate status if provided
+    if (status && !["active", "completed", "abandoned"].includes(status)) {
       return NextResponse.json(
         {
           error:
             "Invalid status. Must be 'active', 'completed', or 'abandoned'",
         },
+        { status: 400 },
+      );
+    }
+
+    // Validate title if provided
+    if (title && (typeof title !== "string" || title.trim().length === 0)) {
+      return NextResponse.json(
+        { error: "Title must be a non-empty string" },
         { status: 400 },
       );
     }
@@ -143,12 +154,19 @@ export async function PATCH(
       );
     }
 
-    // Update run status
-    await RunModel.updateStatus(resolvedParams.run_id, status);
+    // Update run fields
+    if (status) {
+      await RunModel.updateStatus(resolvedParams.run_id, status);
+    }
 
-    console.log("✅ Run status updated:", {
+    if (title) {
+      await RunModel.updateTitle(resolvedParams.run_id, title.trim());
+    }
+
+    console.log("✅ Run updated:", {
       runId: resolvedParams.run_id,
-      newStatus: status,
+      ...(status && { newStatus: status }),
+      ...(title && { newTitle: title.trim() }),
     });
 
     return NextResponse.json({

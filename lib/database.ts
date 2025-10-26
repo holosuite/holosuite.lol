@@ -15,48 +15,29 @@ interface SimulationRow {
   updated_at: string;
 }
 
-// Database row interface for holograms (raw from database)
-interface HologramRawRow {
-  id: string;
-  simulation_id: string;
-  name: string;
-  acting_instructions: string; // JSON string
-  descriptions: string; // JSON string
-  wardrobe: string; // JSON string
-  created_at: string;
-  updated_at: string;
-}
-
-// Database row interface for holograms (parsed)
-interface HologramRow {
-  id: string;
-  simulation_id: string;
-  name: string;
-  acting_instructions: string[]; // Parsed from JSON
-  descriptions: string[]; // Parsed from JSON
-  wardrobe: string[]; // Parsed from JSON
-  created_at: string;
-  updated_at: string;
-}
-
-// Database row interface for messages
-interface MessageRow {
-  key: string;
-  from_role: string;
-  content: string;
-  name: string;
-  avatar: string;
-}
+// Generic type for SQL query results
+type SqlRow = Record<string, unknown>;
 
 // Database row interface for runs
 interface RunRow {
   id: string;
   simulation_id: string;
-  user_hologram_id: string;
   status: string;
   current_turn: number;
+  title?: string;
   created_at: string;
   updated_at: string;
+}
+
+// Database row interface for videos
+interface VideoRow {
+  id: string;
+  run_id: string;
+  video_url: string | null;
+  status: string;
+  generation_prompt: string | null;
+  created_at: string;
+  completed_at: string | null;
 }
 
 // Database row interface for turns
@@ -68,7 +49,7 @@ interface TurnRow {
   ai_response: string;
   image_url: string | null;
   image_prompt: string | null;
-  suggested_options: string | null;
+  suggested_options: string[] | null;
   created_at: string;
 }
 
@@ -104,26 +85,11 @@ export async function initializeDatabase() {
       CREATE TABLE IF NOT EXISTS messages (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         simulation_id UUID NOT NULL,
-        from_role VARCHAR(20) NOT NULL CHECK (from_role IN ('user', 'assistant')),
+        from_role VARCHAR(20) NOT NULL,
         content TEXT NOT NULL,
         name VARCHAR(255) NOT NULL,
         avatar VARCHAR(500) NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (simulation_id) REFERENCES simulations(id) ON DELETE CASCADE
-      )
-    `;
-
-    // Holograms table
-    await sql`
-      CREATE TABLE IF NOT EXISTS holograms (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        simulation_id UUID NOT NULL,
-        name VARCHAR(255) NOT NULL,
-        acting_instructions TEXT NOT NULL,
-        descriptions TEXT NOT NULL,
-        wardrobe TEXT NOT NULL,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (simulation_id) REFERENCES simulations(id) ON DELETE CASCADE
       )
     `;
@@ -133,13 +99,12 @@ export async function initializeDatabase() {
       CREATE TABLE IF NOT EXISTS runs (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         simulation_id UUID NOT NULL,
-        user_hologram_id UUID NOT NULL,
-        status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'completed', 'abandoned')),
+        status VARCHAR(20) DEFAULT 'active',
         current_turn INTEGER DEFAULT 0,
+        title VARCHAR(255),
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (simulation_id) REFERENCES simulations(id) ON DELETE CASCADE,
-        FOREIGN KEY (user_hologram_id) REFERENCES holograms(id) ON DELETE CASCADE
+        FOREIGN KEY (simulation_id) REFERENCES simulations(id) ON DELETE CASCADE
       )
     `;
 
@@ -165,7 +130,7 @@ export async function initializeDatabase() {
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         run_id UUID NOT NULL,
         video_url TEXT,
-        status VARCHAR(20) DEFAULT 'generating' CHECK (status IN ('generating', 'completed', 'failed')),
+        status VARCHAR(20) DEFAULT 'generating',
         generation_prompt TEXT,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         completed_at TIMESTAMP WITH TIME ZONE,
@@ -176,7 +141,6 @@ export async function initializeDatabase() {
     // Create indexes for better performance
     await sql`CREATE INDEX IF NOT EXISTS idx_messages_simulation_id ON messages(simulation_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at)`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_holograms_simulation_id ON holograms(simulation_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_runs_simulation_id ON runs(simulation_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_runs_status ON runs(status)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_turns_run_id ON turns(run_id)`;
@@ -185,19 +149,6 @@ export async function initializeDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_videos_status ON videos(status)`;
 
     console.log("Database initialized successfully");
-
-    // Seed stories if not already seeded
-    try {
-      const { seedStories, checkStoriesSeeded } = await import(
-        "./seed-stories"
-      );
-      const storiesSeeded = await checkStoriesSeeded();
-      if (!storiesSeeded) {
-        await seedStories();
-      }
-    } catch (error) {
-      console.error("Error seeding stories:", error);
-    }
   } catch (error) {
     console.error("Error initializing database:", error);
     throw error;
@@ -340,7 +291,7 @@ export class MessageModel {
     `;
 
     return rows.map(
-      (row: MessageRow) =>
+      (row: SqlRow) =>
         ({
           key: row.key || randomUUID(),
           fromRole: row.from_role as "user" | "assistant",
@@ -359,140 +310,19 @@ export class MessageModel {
   }
 }
 
-// Hologram model
-export class HologramModel {
-  static async create(
-    simulationId: string,
-    name: string,
-    actingInstructions: string[],
-    descriptions: string[],
-    wardrobe: string[],
-  ): Promise<string> {
-    const id = randomUUID();
-
-    console.log("👤 Creating hologram in database:", {
-      id,
-      simulationId,
-      name,
-      actingInstructionsCount: actingInstructions.length,
-      descriptionsCount: descriptions.length,
-      wardrobeCount: wardrobe.length,
-    });
-
-    await sql`
-      INSERT INTO holograms (id, simulation_id, name, acting_instructions, descriptions, wardrobe)
-      VALUES (${id}, ${simulationId}, ${name}, ${JSON.stringify(actingInstructions)}, ${JSON.stringify(descriptions)}, ${JSON.stringify(wardrobe)})
-    `;
-
-    console.log("✅ Hologram created:", { id });
-    return id;
-  }
-
-  static async getById(id: string): Promise<HologramRow | null> {
-    const result = await sql`
-      SELECT * FROM holograms WHERE id = ${id}
-    `;
-    const row = result[0] as HologramRawRow | null;
-    if (!row) return null;
-
-    return {
-      ...row,
-      acting_instructions: JSON.parse(row.acting_instructions),
-      descriptions: JSON.parse(row.descriptions),
-      wardrobe: JSON.parse(row.wardrobe),
-    };
-  }
-
-  static async getBySimulationId(simulationId: string) {
-    const rows = await sql`
-      SELECT * FROM holograms WHERE simulation_id = ${simulationId} ORDER BY created_at ASC
-    `;
-
-    return rows.map((row: HologramRawRow) => ({
-      ...row,
-      acting_instructions: JSON.parse(row.acting_instructions),
-      descriptions: JSON.parse(row.descriptions),
-      wardrobe: JSON.parse(row.wardrobe),
-    }));
-  }
-
-  static async update(
-    id: string,
-    name?: string,
-    actingInstructions?: string[],
-    descriptions?: string[],
-    wardrobe?: string[],
-  ) {
-    console.log("🔄 Updating hologram in database:", {
-      id,
-      hasName: !!name,
-      hasActingInstructions: !!actingInstructions,
-      hasDescriptions: !!descriptions,
-      hasWardrobe: !!wardrobe,
-    });
-
-    const updates = [];
-
-    if (name !== undefined) {
-      updates.push("name = " + sql`${name}`);
-    }
-    if (actingInstructions !== undefined) {
-      updates.push(
-        "acting_instructions = " + sql`${JSON.stringify(actingInstructions)}`,
-      );
-    }
-    if (descriptions !== undefined) {
-      updates.push("descriptions = " + sql`${JSON.stringify(descriptions)}`);
-    }
-    if (wardrobe !== undefined) {
-      updates.push("wardrobe = " + sql`${JSON.stringify(wardrobe)}`);
-    }
-
-    if (updates.length === 0) return;
-
-    updates.push("updated_at = CURRENT_TIMESTAMP");
-
-    await sql`
-      UPDATE holograms 
-      SET ${sql.unsafe(updates.join(", "))}
-      WHERE id = ${id}
-    `;
-
-    console.log("✅ Hologram updated:", { id });
-  }
-
-  static async delete(id: string) {
-    await sql`
-      DELETE FROM holograms WHERE id = ${id}
-    `;
-    console.log("✅ Hologram deleted:", { id });
-  }
-
-  static async deleteBySimulationId(simulationId: string) {
-    await sql`
-      DELETE FROM holograms WHERE simulation_id = ${simulationId}
-    `;
-    console.log("✅ Holograms deleted for simulation:", { simulationId });
-  }
-}
-
 // Run model
 export class RunModel {
-  static async create(
-    simulationId: string,
-    userHologramId: string,
-  ): Promise<string> {
+  static async create(simulationId: string): Promise<string> {
     const id = randomUUID();
 
     console.log("🏃 Creating run in database:", {
       id,
       simulationId,
-      userHologramId,
     });
 
     await sql`
-      INSERT INTO runs (id, simulation_id, user_hologram_id)
-      VALUES (${id}, ${simulationId}, ${userHologramId})
+      INSERT INTO runs (id, simulation_id)
+      VALUES (${id}, ${simulationId})
     `;
 
     console.log("✅ Run created:", { id });
@@ -503,7 +333,18 @@ export class RunModel {
     const result = await sql`
       SELECT * FROM runs WHERE id = ${id}
     `;
-    return result[0] || null;
+    const row = result[0] as SqlRow;
+    if (!row) return null;
+
+    return {
+      id: row.id as string,
+      simulation_id: row.simulation_id as string,
+      status: row.status as string,
+      current_turn: row.current_turn as number,
+      title: row.title as string | undefined,
+      created_at: row.created_at as string,
+      updated_at: row.updated_at as string,
+    };
   }
 
   static async getBySimulationId(simulationId: string) {
@@ -519,6 +360,15 @@ export class RunModel {
       WHERE id = ${id}
     `;
     console.log("✅ Run status updated:", { id, status });
+  }
+
+  static async updateTitle(id: string, title: string) {
+    await sql`
+      UPDATE runs 
+      SET title = ${title}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id}
+    `;
+    console.log("✅ Run title updated:", { id, title });
   }
 
   static async updateCurrentTurn(id: string, currentTurn: number) {
@@ -581,34 +431,48 @@ export class TurnModel {
     const result = await sql`
       SELECT * FROM turns WHERE id = ${id}
     `;
-    return result[0] || null;
+    return (result[0] as SqlRow) || null;
   }
 
-  static async getByRunId(runId: string) {
+  static async getByRunId(runId: string): Promise<TurnRow[]> {
     const rows = await sql`
       SELECT * FROM turns WHERE run_id = ${runId} ORDER BY turn_number ASC
     `;
 
-    return rows.map((row: TurnRow) => ({
-      ...row,
+    return rows.map((row: SqlRow) => ({
+      id: row.id as string,
+      run_id: row.run_id as string,
+      turn_number: row.turn_number as number,
+      user_prompt: row.user_prompt as string,
+      ai_response: row.ai_response as string,
+      image_url: row.image_url as string | null,
+      image_prompt: row.image_prompt as string | null,
       suggested_options: row.suggested_options
-        ? JSON.parse(row.suggested_options)
+        ? JSON.parse(row.suggested_options as string)
         : null,
+      created_at: row.created_at as string,
     }));
   }
 
-  static async getLatestByRunId(runId: string) {
+  static async getLatestByRunId(runId: string): Promise<TurnRow | null> {
     const result = await sql`
       SELECT * FROM turns WHERE run_id = ${runId} ORDER BY turn_number DESC LIMIT 1
     `;
-    const row = result[0];
+    const row = result[0] as SqlRow;
     if (!row) return null;
 
     return {
-      ...row,
+      id: row.id as string,
+      run_id: row.run_id as string,
+      turn_number: row.turn_number as number,
+      user_prompt: row.user_prompt as string,
+      ai_response: row.ai_response as string,
+      image_url: row.image_url as string | null,
+      image_prompt: row.image_prompt as string | null,
       suggested_options: row.suggested_options
-        ? JSON.parse(row.suggested_options)
+        ? JSON.parse(row.suggested_options as string)
         : null,
+      created_at: row.created_at as string,
     };
   }
 
@@ -650,11 +514,22 @@ export class VideoModel {
     return id;
   }
 
-  static async getById(id: string) {
+  static async getById(id: string): Promise<VideoRow | null> {
     const result = await sql`
       SELECT * FROM videos WHERE id = ${id}
     `;
-    return result[0] || null;
+    const row = result[0] as SqlRow;
+    if (!row) return null;
+
+    return {
+      id: row.id as string,
+      run_id: row.run_id as string,
+      video_url: row.video_url as string | null,
+      status: row.status as string,
+      generation_prompt: row.generation_prompt as string | null,
+      created_at: row.created_at as string,
+      completed_at: row.completed_at as string | null,
+    };
   }
 
   static async getByRunId(runId: string) {
@@ -684,6 +559,15 @@ export class VideoModel {
     `;
 
     console.log("✅ Video status update result:", { id, status });
+  }
+
+  static async updateUrl(id: string, videoUrl: string) {
+    await sql`
+      UPDATE videos 
+      SET video_url = ${videoUrl}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id}
+    `;
+    console.log("✅ Video URL updated:", { id, videoUrl });
   }
 
   static async delete(id: string) {

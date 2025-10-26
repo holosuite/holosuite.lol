@@ -12,6 +12,8 @@
   "dependencies": {
     "@ai-sdk/google": "^2.0.23",
     "@ai-sdk/openai": "^2.0.53",
+    "@google/genai": "^1.27.0",
+    "@google/generative-ai": "^0.24.1",
     "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-collapsible": "^1.1.12",
@@ -25,6 +27,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@radix-ui/react-use-controllable-state": "^1.2.2",
     "@vercel/blob": "^2.0.0",
+    "@vercel/postgres": "^0.10.0",
     "@xyflow/react": "^12.9.0",
     "ai": "^5.0.79",
     "class-variance-authority": "^0.7.1",

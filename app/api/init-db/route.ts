@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { initializeDatabase } from "@/lib/database";
 
 // POST /api/init-db - Initialize database schema

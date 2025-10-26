@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { sql } from "@/lib/database";
 
 // GET /api/videos - List all completed videos
@@ -9,13 +9,10 @@ export async function GET() {
       SELECT 
         v.*,
         r.simulation_id,
-        r.user_hologram_id,
-        s.title as simulation_title,
-        h.name as hologram_name
+        s.title as simulation_title
       FROM videos v
       JOIN runs r ON v.run_id = r.id
       JOIN simulations s ON r.simulation_id = s.id
-      JOIN holograms h ON r.user_hologram_id = h.id
       WHERE v.status = 'completed' AND v.video_url IS NOT NULL
       ORDER BY v.completed_at DESC
     `;
@@ -28,7 +25,6 @@ export async function GET() {
         videoUrl: video.video_url,
         isPersistent: video.video_url?.includes("blob.vercel-storage.com"),
         simulationTitle: video.simulation_title,
-        hologramName: video.hologram_name,
         completedAt: video.completed_at,
         downloadUrl: `/api/videos/${video.id}/download`,
         streamUrl: `/api/videos/${video.id}/stream`,

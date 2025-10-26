@@ -34,8 +34,6 @@ import {
   createInitialMessages,
   createUserMessage,
 } from "@/lib/simulation";
-import { createAssistantMessage } from "@/lib/simulation";
-import type { HologramRow } from "@/lib/hologram-schema";
 import { Button } from "@/components/ui/button";
 import {
   Eye,
@@ -48,22 +46,9 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { SimulationCard } from "@/components/simulation-card";
-import { HologramSelectionModal } from "@/components/hologram-selection-modal";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Simulation, AIElementsUsage } from "@/lib/simulation-schema";
-
-// Type definition for simulation object
-interface SimulationObject {
-  type?: string;
-  story?: {
-    title: string;
-    description: string;
-    genre: string;
-    setting: string;
-    estimatedTurns: number;
-  };
-}
 
 // Type definition for run objects
 interface Run {
@@ -91,27 +76,8 @@ export default function SimulationPage({
   const [showSimulationDetails, setShowSimulationDetails] = useState(false);
   const [isForking, setIsForking] = useState(false);
   const [isUpdatingState, setIsUpdatingState] = useState(false);
-  const [holograms, setHolograms] = useState<HologramRow[]>([]);
-  const [isProcessingHologram, setIsProcessingHologram] = useState(false);
   const [runs, setRuns] = useState<Run[]>([]);
   const [isLoadingRuns, setIsLoadingRuns] = useState(false);
-  const [showHologramModal, setShowHologramModal] = useState(false);
-
-  // Load holograms
-  const loadHolograms = useCallback(async () => {
-    try {
-      const response = await fetch(
-        `/api/simulations/${resolvedParams.simulation_id}/holograms`,
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setHolograms(data.holograms || []);
-        console.log("🎭 Holograms loaded:", data.holograms?.length || 0);
-      }
-    } catch (error) {
-      console.error("Error loading holograms:", error);
-    }
-  }, [resolvedParams.simulation_id]);
 
   // Load runs
   const loadRuns = useCallback(async () => {
@@ -131,16 +97,6 @@ export default function SimulationPage({
       setIsLoadingRuns(false);
     }
   }, [resolvedParams.simulation_id]);
-
-  // Handle run creation
-  const handleRunCreated = useCallback(
-    (runId: string) => {
-      console.log("✅ Run created:", runId);
-      // Redirect to the run page
-      window.location.href = `/simulations/${resolvedParams.simulation_id}/runs/${runId}`;
-    },
-    [resolvedParams.simulation_id],
-  );
 
   // Load simulation data from API
   useEffect(() => {
@@ -192,9 +148,8 @@ export default function SimulationPage({
     };
 
     loadSimulation();
-    loadHolograms();
     loadRuns();
-  }, [resolvedParams.simulation_id, loadHolograms, loadRuns]);
+  }, [resolvedParams.simulation_id, loadRuns]);
 
   // Update simulation state function
   const handleUpdateSimulationState = useCallback(
@@ -259,101 +214,49 @@ export default function SimulationPage({
       try {
         const messageContent = message.text || "Sent files";
 
-        // Check if this is a hologram command
-        const { HologramGenerator } = await import("@/lib/ai-hologram-service");
-        const isHologramCommand =
-          HologramGenerator.isHologramCommand(messageContent);
-        console.log("🎭 Hologram command detection:", {
+        // Check if this is an update command
+        const isUpdate = isUpdateCommand(messageContent);
+        console.log("🔍 Update command detection:", {
           messageContent,
-          isHologramCommand,
+          isUpdate,
+          hasSimulationObject: !!simulationObject,
+          willUpdate: isUpdate && simulationObject,
         });
 
-        if (isHologramCommand) {
-          // Handle as hologram command
-          console.log("🎭 Processing hologram command...");
-          setIsProcessingHologram(true);
-
-          try {
-            const response = await fetch(
-              `/api/simulations/${resolvedParams.simulation_id}/holograms`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  prompt: messageContent,
-                }),
-              },
-            );
-
-            if (response.ok) {
-              const { message: assistantMessage, holograms: updatedHolograms } =
-                await response.json();
-              setHolograms(updatedHolograms);
-              setMessages((prev) => [...prev, assistantMessage]);
-              console.log("✅ Hologram command processed:", {
-                hologramsCount: updatedHolograms.length,
-                command: assistantMessage.content,
-              });
-            } else {
-              throw new Error("Failed to process hologram command");
-            }
-          } catch (error) {
-            console.error("Error processing hologram command:", error);
-            const errorMessage = createAssistantMessage(
-              "Sorry, I couldn't process that hologram command. Please try again.",
-            );
-            setMessages((prev) => [...prev, errorMessage]);
-          } finally {
-            setIsProcessingHologram(false);
-            setStatus(undefined);
-          }
+        if (isUpdate && simulationObject) {
+          // Handle as state update
+          console.log("🔄 Triggering state update...");
+          await handleUpdateSimulationState(messageContent);
+          setStatus(undefined);
         } else {
-          // Check if this is an update command
-          const isUpdate = isUpdateCommand(messageContent);
-          console.log("🔍 Update command detection:", {
-            messageContent,
-            isUpdate,
-            hasSimulationObject: !!simulationObject,
-            willUpdate: isUpdate && simulationObject,
-          });
-
-          if (isUpdate && simulationObject) {
-            // Handle as state update
-            console.log("🔄 Triggering state update...");
-            await handleUpdateSimulationState(messageContent);
-            setStatus(undefined);
-          } else {
-            // Handle as regular message
-            const response = await fetch(
-              `/api/simulations/${resolvedParams.simulation_id}`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  content: messageContent,
-                  from: "user",
-                  name: "You",
-                  avatar: "https://github.com/vercel.png",
-                }),
+          // Handle as regular message
+          const response = await fetch(
+            `/api/simulations/${resolvedParams.simulation_id}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
               },
-            );
+              body: JSON.stringify({
+                content: messageContent,
+                from: "user",
+                name: "You",
+                avatar: "https://github.com/vercel.png",
+              }),
+            },
+          );
 
-            if (response.ok) {
-              const { assistantMessage } = await response.json();
-              setStatus("streaming");
+          if (response.ok) {
+            const { assistantMessage } = await response.json();
+            setStatus("streaming");
 
-              // Simulate streaming delay
-              setTimeout(() => {
-                setMessages((prev) => [...prev, assistantMessage]);
-                setStatus(undefined);
-              }, 2000);
-            } else {
-              throw new Error("Failed to send message");
-            }
+            // Simulate streaming delay
+            setTimeout(() => {
+              setMessages((prev) => [...prev, assistantMessage]);
+              setStatus(undefined);
+            }, 2000);
+          } else {
+            throw new Error("Failed to send message");
           }
         }
       } catch (error) {
@@ -382,7 +285,7 @@ export default function SimulationPage({
         },
         body: JSON.stringify({
           prompt:
-            messages.find((m) => m.from === "user")?.content ||
+            messages.find((m) => m.fromRole === "user")?.content ||
             "Forked simulation",
           simulationObject: simulationObject,
           aiElementsUsage: aiElementsUsage,
@@ -495,17 +398,6 @@ export default function SimulationPage({
                 {isUpdatingState && (
                   <span className="ml-2 text-primary">• Updating...</span>
                 )}
-                {isProcessingHologram && (
-                  <span className="ml-2 text-primary">
-                    • Managing Holograms...
-                  </span>
-                )}
-                {holograms.length > 0 && (
-                  <span className="ml-2 text-primary">
-                    • {holograms.length} Hologram
-                    {holograms.length !== 1 ? "s" : ""}
-                  </span>
-                )}
               </div>
             </div>
           </div>
@@ -533,15 +425,17 @@ export default function SimulationPage({
               ) : (
                 messages.map((message) => (
                   <Message
-                    from={message.from}
+                    from={message.fromRole}
                     key={message.key}
                     className={`flex flex-col gap-2 ${
-                      message.from === "assistant" ? "items-start" : "items-end"
+                      message.fromRole === "assistant"
+                        ? "items-start"
+                        : "items-end"
                     }`}
                   >
                     <MessageAvatar name={message.name} src={message.avatar} />
                     <MessageContent>{message.content}</MessageContent>
-                    {message.from === "assistant" && (
+                    {message.fromRole === "assistant" && (
                       <Actions className="mt-2">
                         {MESSAGE_ACTIONS.map((action) => (
                           <Action key={action.label} label={action.label}>
@@ -583,31 +477,66 @@ export default function SimulationPage({
 
         {/* Simulation Details - Right Side */}
         {simulationObject && showSimulationDetails && (
-          <div className="w-1/3 bg-muted/30 overflow-y-auto">
+          <div className="w-1/3 bg-gradient-to-b from-background to-muted/20 overflow-y-auto border-l border-border/50">
             <div className="p-6">
-              <div className="flex items-center gap-2 mb-6">
-                <Info className="w-5 h-5" />
-                <h2 className="text-lg font-semibold">Simulation Details</h2>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
+                  <Info className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-foreground">
+                    Simulation Details
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Overview and management
+                  </p>
+                </div>
               </div>
               <SimulationCard
                 simulation={simulationObject}
                 aiElements={aiElementsUsage || undefined}
               />
 
-              {/* Story Runs Section */}
-              {simulationObject?.type === "story" && (
-                <div className="mt-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <Play className="w-5 h-5" />
-                      <h3 className="text-lg font-semibold">
-                        Story Runs ({runs.length})
-                      </h3>
+              {/* Simulation Runs Section */}
+              {simulationObject && (
+                <div className="mt-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+                        <Play className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-foreground">
+                          Simulation Runs
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {runs.length} {runs.length === 1 ? "run" : "runs"}{" "}
+                          created
+                        </p>
+                      </div>
                     </div>
                     <Button
-                      onClick={() => setShowHologramModal(true)}
+                      onClick={async () => {
+                        try {
+                          const response = await fetch(
+                            `/api/simulations/${resolvedParams.simulation_id}/runs`,
+                            {
+                              method: "POST",
+                              headers: {
+                                "Content-Type": "application/json",
+                              },
+                            },
+                          );
+                          if (response.ok) {
+                            const { runId } = await response.json();
+                            window.location.href = `/simulations/${resolvedParams.simulation_id}/runs/${runId}`;
+                          }
+                        } catch (error) {
+                          console.error("Error creating run:", error);
+                        }
+                      }}
                       size="sm"
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md transition-all duration-200"
                     >
                       <Play className="w-4 h-4" />
                       Start New Run
@@ -615,45 +544,73 @@ export default function SimulationPage({
                   </div>
 
                   {isLoadingRuns ? (
-                    <div className="text-center py-4">
+                    <div className="text-center py-8">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                      </div>
                       <div className="text-sm text-muted-foreground">
                         Loading runs...
                       </div>
                     </div>
                   ) : runs.length > 0 ? (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       {runs.map((run) => (
                         <Card
                           key={run.id}
-                          className="cursor-pointer hover:shadow-md transition-shadow"
+                          className="cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-border/50 hover:border-primary/20 group"
                         >
-                          <CardContent className="p-4">
+                          <CardContent className="p-5">
                             <div className="flex items-center justify-between">
                               <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <h4 className="font-semibold">
-                                    {run.hologram?.name || "Unknown Character"}
-                                  </h4>
-                                  <Badge
-                                    variant={
-                                      run.status === "completed"
-                                        ? "default"
-                                        : "secondary"
-                                    }
-                                    className="text-xs"
-                                  >
-                                    {run.status === "completed" ? (
-                                      <CheckCircle className="w-3 h-3 mr-1" />
-                                    ) : (
-                                      <Clock className="w-3 h-3 mr-1" />
-                                    )}
-                                    {run.status}
-                                  </Badge>
+                                <div className="flex items-center gap-3 mb-2">
+                                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
+                                    <Users className="w-4 h-4 text-blue-600" />
+                                  </div>
+                                  <div>
+                                    <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                                      Run #{run.id.slice(-6)}
+                                    </h4>
+                                    <div className="flex items-center gap-2">
+                                      <Badge
+                                        variant={
+                                          run.status === "completed"
+                                            ? "default"
+                                            : run.status === "active"
+                                              ? "secondary"
+                                              : "outline"
+                                        }
+                                        className={`text-xs ${
+                                          run.status === "completed"
+                                            ? "bg-green-100 text-green-700 border-green-200"
+                                            : run.status === "active"
+                                              ? "bg-blue-100 text-blue-700 border-blue-200"
+                                              : "bg-gray-100 text-gray-700 border-gray-200"
+                                        }`}
+                                      >
+                                        {run.status === "completed" ? (
+                                          <CheckCircle className="w-3 h-3 mr-1" />
+                                        ) : (
+                                          <Clock className="w-3 h-3 mr-1" />
+                                        )}
+                                        {run.status}
+                                      </Badge>
+                                    </div>
+                                  </div>
                                 </div>
-                                <p className="text-sm text-muted-foreground">
-                                  Turn {run.currentTurn + 1} • Started{" "}
-                                  {new Date(run.createdAt).toLocaleDateString()}
-                                </p>
+                                <div className="ml-11">
+                                  <p className="text-sm text-muted-foreground">
+                                    Turn {run.currentTurn + 1} • Started{" "}
+                                    {new Date(
+                                      run.createdAt,
+                                    ).toLocaleDateString()}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    Last updated:{" "}
+                                    {new Date(
+                                      run.updatedAt,
+                                    ).toLocaleDateString()}
+                                  </p>
+                                </div>
                               </div>
                               <Button
                                 variant="outline"
@@ -661,6 +618,7 @@ export default function SimulationPage({
                                 onClick={() => {
                                   window.location.href = `/simulations/${resolvedParams.simulation_id}/runs/${run.id}`;
                                 }}
+                                className="ml-4 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-200"
                               >
                                 {run.status === "completed"
                                   ? "View"
@@ -672,91 +630,44 @@ export default function SimulationPage({
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
-                      <Play className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground mb-4">
-                        No story runs yet. Start your first adventure!
+                    <div className="text-center py-12 px-6 bg-gradient-to-br from-muted/30 to-muted/10 border-2 border-dashed border-border/50 rounded-xl hover:border-primary/20 transition-colors duration-200">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mx-auto mb-4">
+                        <Play className="w-8 h-8 text-primary" />
+                      </div>
+                      <h4 className="text-lg font-semibold text-foreground mb-2">
+                        Ready to Begin?
+                      </h4>
+                      <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
+                        Start your first simulation run and experience the
+                        interactive story you&apos;ve created.
                       </p>
                       <Button
-                        onClick={() => setShowHologramModal(true)}
-                        className="flex items-center gap-2"
+                        onClick={async () => {
+                          try {
+                            const response = await fetch(
+                              `/api/simulations/${resolvedParams.simulation_id}/runs`,
+                              {
+                                method: "POST",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                },
+                              },
+                            );
+                            if (response.ok) {
+                              const { runId } = await response.json();
+                              window.location.href = `/simulations/${resolvedParams.simulation_id}/runs/${runId}`;
+                            }
+                          } catch (error) {
+                            console.error("Error creating run:", error);
+                          }
+                        }}
+                        className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md transition-all duration-200"
                       >
                         <Play className="w-4 h-4" />
-                        Start Story
+                        Start Your First Run
                       </Button>
                     </div>
                   )}
-                </div>
-              )}
-
-              {/* Holograms Section */}
-              {holograms.length > 0 && (
-                <div className="mt-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Users className="w-5 h-5" />
-                    <h3 className="text-lg font-semibold">
-                      Available Characters ({holograms.length})
-                    </h3>
-                  </div>
-                  <div className="space-y-3">
-                    {holograms.map((hologram) => (
-                      <div
-                        key={hologram.id}
-                        className="border rounded-lg p-4 bg-card"
-                      >
-                        <h4 className="font-semibold text-lg mb-2">
-                          {hologram.name}
-                        </h4>
-
-                        {hologram.descriptions.length > 0 && (
-                          <div className="mb-3">
-                            <h5 className="font-medium text-sm text-muted-foreground mb-1">
-                              Description
-                            </h5>
-                            <ul className="text-sm space-y-1">
-                              {hologram.descriptions.map((desc, i) => (
-                                <li key={i} className="text-muted-foreground">
-                                  • {desc}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {hologram.acting_instructions.length > 0 && (
-                          <div className="mb-3">
-                            <h5 className="font-medium text-sm text-muted-foreground mb-1">
-                              Acting Instructions
-                            </h5>
-                            <ul className="text-sm space-y-1">
-                              {hologram.acting_instructions.map(
-                                (instruction, i) => (
-                                  <li key={i} className="text-muted-foreground">
-                                    • {instruction}
-                                  </li>
-                                ),
-                              )}
-                            </ul>
-                          </div>
-                        )}
-
-                        {hologram.wardrobe.length > 0 && (
-                          <div>
-                            <h5 className="font-medium text-sm text-muted-foreground mb-1">
-                              Wardrobe
-                            </h5>
-                            <ul className="text-sm space-y-1">
-                              {hologram.wardrobe.map((item, i) => (
-                                <li key={i} className="text-muted-foreground">
-                                  • {item}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
                 </div>
               )}
             </div>
@@ -765,30 +676,24 @@ export default function SimulationPage({
 
         {/* Empty State for Right Side */}
         {simulationObject && !showSimulationDetails && (
-          <div className="w-1/3 bg-muted/10 border-l border-border flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <Info className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Simulation details available</p>
-              <p className="text-xs">Click &quot;Show Details&quot; to view</p>
+          <div className="w-1/3 bg-gradient-to-b from-background to-muted/10 border-l border-border/50 flex items-center justify-center">
+            <div className="text-center text-muted-foreground px-6">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center mx-auto mb-4">
+                <Info className="w-8 h-8 text-primary/60" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                Simulation Ready
+              </h3>
+              <p className="text-sm text-muted-foreground mb-1">
+                Your simulation is complete and ready to run
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Click &quot;Show Details&quot; to view and manage
+              </p>
             </div>
           </div>
         )}
       </div>
-
-      {/* Hologram Selection Modal */}
-      <HologramSelectionModal
-        isOpen={showHologramModal}
-        onClose={() => setShowHologramModal(false)}
-        holograms={holograms.map((h) => ({
-          id: h.id,
-          name: h.name,
-          descriptions: h.descriptions,
-          actingInstructions: h.acting_instructions,
-          wardrobe: h.wardrobe,
-        }))}
-        simulationId={resolvedParams.simulation_id}
-        onRunCreated={handleRunCreated}
-      />
     </div>
   );
 }

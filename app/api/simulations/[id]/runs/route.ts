@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  SimulationModel,
-  HologramModel,
-  RunModel,
-  TurnModel,
-} from "@/lib/database";
+import { SimulationModel, RunModel, TurnModel } from "@/lib/database";
 import { imageGenerationService } from "@/lib/ai-image-service";
 
 // POST /api/simulations/[simulation_id]/runs - Create new run
@@ -14,16 +9,8 @@ export async function POST(
 ) {
   try {
     const resolvedParams = await params;
-    const { hologramId } = await request.json();
 
-    if (!hologramId) {
-      return NextResponse.json(
-        { error: "Hologram ID is required" },
-        { status: 400 },
-      );
-    }
-
-    // Validate simulation exists and is a story
+    // Validate simulation exists
     const simulation = await SimulationModel.getById(resolvedParams.id);
     if (!simulation) {
       return NextResponse.json(
@@ -32,7 +19,7 @@ export async function POST(
       );
     }
 
-    // Parse simulation object to check if it's a story
+    // Parse simulation object
     let simulationObject;
     try {
       simulationObject = JSON.parse(simulation.simulation_object || "{}");
@@ -43,41 +30,40 @@ export async function POST(
       );
     }
 
-    if (simulationObject.type !== "story") {
-      return NextResponse.json(
-        { error: "This simulation is not a story" },
-        { status: 400 },
-      );
-    }
-
-    // Validate hologram exists and belongs to this simulation
-    const hologram = await HologramModel.getById(hologramId);
-    if (!hologram || hologram.simulation_id !== resolvedParams.id) {
-      return NextResponse.json(
-        { error: "Invalid hologram for this simulation" },
-        { status: 400 },
-      );
-    }
-
     // Create new run
-    const runId = await RunModel.create(resolvedParams.id, hologramId);
+    const runId = await RunModel.create(resolvedParams.id);
 
-    // Generate initial scene and image
-    const story = simulationObject.story;
-    const initialScene = story.initialScene;
+    // Generate initial scene and image based on simulation type
+    let initialScene, title, imageStyle;
+
+    if (simulationObject.type === "story" && simulationObject.story) {
+      // Story simulation
+      const story = simulationObject.story;
+      initialScene = story.initialScene;
+      title = story.title;
+      imageStyle = story.imageStyle || "cinematic";
+    } else {
+      // Other simulation types - use generic content
+      initialScene =
+        simulationObject.description || "Welcome to your simulation!";
+      title = simulationObject.name || "Simulation";
+      imageStyle = "cinematic";
+    }
 
     // Generate initial image
     const imageResult = await imageGenerationService.generateInitialSceneImage(
-      story.title,
+      title,
       initialScene,
-      story.imageStyle || "cinematic",
+      imageStyle,
     );
 
     // Create initial turn with opening scene
     const turnId = await TurnModel.create(
       runId,
       0,
-      "Start the story",
+      simulationObject.type === "story"
+        ? "Start the story"
+        : "Start the simulation",
       initialScene,
       imageResult.imageUrl,
       imageResult.imagePrompt,
@@ -92,22 +78,22 @@ export async function POST(
     // Update run with current turn
     await RunModel.updateCurrentTurn(runId, 0);
 
-    console.log("✅ Story run created:", {
+    console.log("✅ Simulation run created:", {
       runId,
       simulationId: resolvedParams.id,
-      hologramId,
       turnId,
+      simulationType: simulationObject.type,
     });
 
     return NextResponse.json({
       runId,
       redirectUrl: `/simulations/${resolvedParams.id}/runs/${runId}`,
-      message: "Story run created successfully",
+      message: "Simulation run created successfully",
     });
   } catch (error) {
-    console.error("❌ Error creating story run:", error);
+    console.error("❌ Error creating simulation run:", error);
     return NextResponse.json(
-      { error: "Failed to create story run" },
+      { error: "Failed to create simulation run" },
       { status: 500 },
     );
   }
@@ -124,24 +110,13 @@ export async function GET(
     // Get all runs for this simulation
     const runs = await RunModel.getBySimulationId(resolvedParams.id);
 
-    // Get hologram info for each run
-    const runsWithDetails = await Promise.all(
-      runs.map(async (run) => {
-        const hologram = await HologramModel.getById(run.user_hologram_id);
-        return {
-          id: run.id,
-          status: run.status,
-          currentTurn: run.current_turn,
-          createdAt: run.created_at,
-          hologram: hologram
-            ? {
-                id: hologram.id,
-                name: hologram.name,
-              }
-            : null,
-        };
-      }),
-    );
+    // Format runs data
+    const runsWithDetails = runs.map((run) => ({
+      id: run.id,
+      status: run.status,
+      currentTurn: run.current_turn,
+      createdAt: run.created_at,
+    }));
 
     console.log("📋 Retrieved runs:", {
       simulationId: resolvedParams.id,
