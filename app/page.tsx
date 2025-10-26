@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { PromptSubmission } from "@/components/prompt-submission";
+import { LightRays } from "@/components/ui/light-rays";
 
 export default function Home() {
   return (
@@ -45,8 +46,15 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6">
-        <div className="container mx-auto">
+      <section className="pt-32 pb-20 px-6 relative overflow-hidden">
+        <LightRays 
+          count={6}
+          color="rgba(255, 255, 255, 0.4)"
+          blur={25}
+          speed={6}
+          length="50vh"
+        />
+        <div className="container mx-auto relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <div className="space-y-8">
