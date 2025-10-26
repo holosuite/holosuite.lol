@@ -81,42 +81,6 @@
     --sidebar-ring: 357 28% 63%;
   }
 
-  .dark {
-    /* Earthy Tones Palette - Dark Theme */
-    --background: 60 16% 27%; /* darkened sage */
-    --foreground: 53 51% 87%; /* beige */
-    --card: 60 16% 32%; /* slightly lighter dark sage */
-    --card-foreground: 53 51% 87%;
-    --popover: 60 16% 32%;
-    --popover-foreground: 53 51% 87%;
-    --primary: 357 28% 63%; /* old-rose */
-    --primary-foreground: 53 51% 87%; /* beige */
-    --secondary: 60 16% 40%; /* medium sage */
-    --secondary-foreground: 53 51% 87%;
-    --muted: 60 16% 35%; /* muted dark sage */
-    --muted-foreground: 53 45% 71%; /* vanilla */
-    --accent: 17 48% 70%; /* buff */
-    --accent-foreground: 60 16% 27%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 60 16% 45%; /* medium sage border */
-    --input: 60 16% 45%;
-    --ring: 357 28% 63%; /* old-rose */
-    --chart-1: 357 28% 63%; /* old-rose */
-    --chart-2: 17 48% 70%; /* buff */
-    --chart-3: 53 45% 71%; /* vanilla */
-    --chart-4: 60 16% 57%; /* sage */
-    --chart-5: 53 51% 87%; /* beige */
-    --sidebar: 60 16% 27%; /* darkened sage */
-    --sidebar-foreground: 53 51% 87%;
-    --sidebar-primary: 357 28% 63%; /* old-rose */
-    --sidebar-primary-foreground: 53 51% 87%;
-    --sidebar-accent: 60 16% 35%;
-    --sidebar-accent-foreground: 53 51% 87%;
-    --sidebar-border: 60 16% 45%;
-    --sidebar-ring: 357 28% 63%;
-  }
-
   * {
     @apply border-border outline-ring/50;
   }
