@@ -12,6 +12,7 @@
   "dependencies": {
     "@ai-sdk/google": "^2.0.23",
     "@ai-sdk/openai": "^2.0.53",
+    "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-dialog": "^1.1.15",
@@ -23,9 +24,9 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@radix-ui/react-use-controllable-state": "^1.2.2",
+    "@vercel/blob": "^2.0.0",
     "@xyflow/react": "^12.9.0",
     "ai": "^5.0.79",
-    "better-sqlite3": "^12.4.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -45,7 +46,6 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

@@ -11,7 +11,7 @@ import { simulationGenerator } from "@/lib/ai-simulation-service";
 // GET /api/simulations - List all simulations
 export async function GET() {
   try {
-    const simulations = SimulationModel.getAll();
+    const simulations = await SimulationModel.getAll();
     return NextResponse.json({ simulations });
   } catch (error) {
     console.error("Error fetching simulations:", error);
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const simulationId = SimulationModel.create(
+    const simulationId = await SimulationModel.create(
       prompt,
       simulationObject,
       aiElementsUsage,
@@ -136,8 +136,22 @@ export async function POST(request: NextRequest) {
       const userMessage = createUserMessage(prompt);
 
       // Save initial messages
-      initialMessages.forEach((msg) => MessageModel.create(simulationId, msg));
-      MessageModel.create(simulationId, userMessage);
+      for (const msg of initialMessages) {
+        await MessageModel.create(
+          simulationId,
+          msg.fromRole,
+          msg.content,
+          msg.name,
+          msg.avatar,
+        );
+      }
+      await MessageModel.create(
+        simulationId,
+        userMessage.fromRole,
+        userMessage.content,
+        userMessage.name,
+        userMessage.avatar,
+      );
 
       // Generate enhanced AI response with simulation details
       let aiResponse = generateSimulationResponse(prompt);
@@ -146,11 +160,25 @@ export async function POST(request: NextRequest) {
       }
 
       const assistantMessage = createAssistantMessage(aiResponse);
-      MessageModel.create(simulationId, assistantMessage);
+      await MessageModel.create(
+        simulationId,
+        assistantMessage.fromRole,
+        assistantMessage.content,
+        assistantMessage.name,
+        assistantMessage.avatar,
+      );
     } else {
       // Just create initial welcome message
       const initialMessages = createInitialMessages();
-      initialMessages.forEach((msg) => MessageModel.create(simulationId, msg));
+      for (const msg of initialMessages) {
+        await MessageModel.create(
+          simulationId,
+          msg.fromRole,
+          msg.content,
+          msg.name,
+          msg.avatar,
+        );
+      }
     }
 
     return NextResponse.json({

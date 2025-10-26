@@ -23,7 +23,7 @@ export async function GET(
     const { id } = await params;
 
     // Verify simulation exists
-    const simulation = SimulationModel.getById(id);
+    const simulation = await SimulationModel.getById(id);
     if (!simulation) {
       return NextResponse.json(
         { error: "Simulation not found" },
@@ -31,7 +31,7 @@ export async function GET(
       );
     }
 
-    const holograms = HologramModel.getBySimulationId(id);
+    const holograms = await HologramModel.getBySimulationId(id);
 
     return NextResponse.json({ holograms });
   } catch (error) {
@@ -53,7 +53,7 @@ export async function POST(
     const { prompt } = await request.json();
 
     // Verify simulation exists
-    const simulation = SimulationModel.getById(id);
+    const simulation = await SimulationModel.getById(id);
     if (!simulation) {
       return NextResponse.json(
         { error: "Simulation not found" },
@@ -67,7 +67,7 @@ export async function POST(
     });
 
     // Get current holograms to help with command parsing
-    const currentHolograms = HologramModel.getBySimulationId(id);
+    const currentHolograms = await HologramModel.getBySimulationId(id);
     const existingHologramNames = currentHolograms.map((h) => h.name);
 
     // Parse the command to determine action
@@ -96,7 +96,7 @@ export async function POST(
 
         // Create each hologram in the database
         for (const hologram of hologramsData.holograms) {
-          HologramModel.create(
+          await HologramModel.create(
             id,
             hologram.name,
             hologram.actingInstructions,
@@ -106,7 +106,7 @@ export async function POST(
         }
 
         responseMessage = `Created ${hologramsData.holograms.length} hologram(s): ${hologramsData.holograms.map((h) => h.name).join(", ")}`;
-        updatedHolograms = HologramModel.getBySimulationId(id);
+        updatedHolograms = await HologramModel.getBySimulationId(id);
         break;
       }
 
@@ -148,7 +148,7 @@ export async function POST(
 
           if (hologramsData.holograms.length > 0) {
             const updatedHologram = hologramsData.holograms[0];
-            HologramModel.update(
+            await HologramModel.update(
               targetHologram.id,
               updatedHologram.name,
               updatedHologram.actingInstructions,
@@ -178,7 +178,7 @@ export async function POST(
               (h) => h.name === hologram.name,
             );
             if (existingHologram) {
-              HologramModel.update(
+              await HologramModel.update(
                 existingHologram.id,
                 hologram.name,
                 hologram.actingInstructions,
@@ -191,7 +191,7 @@ export async function POST(
           responseMessage = `Updated hologram(s): ${hologramsData.holograms.map((h) => h.name).join(", ")}`;
         }
 
-        updatedHolograms = HologramModel.getBySimulationId(id);
+        updatedHolograms = await HologramModel.getBySimulationId(id);
         break;
       }
 
@@ -212,18 +212,18 @@ export async function POST(
           );
 
           if (targetHologram) {
-            HologramModel.delete(targetHologram.id);
+            await HologramModel.delete(targetHologram.id);
             responseMessage = `Removed hologram: ${targetHologram.name}`;
           } else {
             responseMessage = `Hologram "${command.targetHologram}" not found.`;
           }
         } else {
           // Remove all holograms
-          HologramModel.deleteBySimulationId(id);
+          await HologramModel.deleteBySimulationId(id);
           responseMessage = "Removed all holograms from this simulation.";
         }
 
-        updatedHolograms = HologramModel.getBySimulationId(id);
+        updatedHolograms = await HologramModel.getBySimulationId(id);
         break;
       }
 
@@ -242,7 +242,7 @@ export async function POST(
         }
 
         // Verify target simulation exists
-        const targetSimulation = SimulationModel.getById(
+        const targetSimulation = await SimulationModel.getById(
           command.targetSimulation,
         );
         if (!targetSimulation) {
@@ -259,7 +259,13 @@ export async function POST(
           );
 
           if (targetHologram) {
-            HologramModel.transfer(targetHologram.id, command.targetSimulation);
+            await HologramModel.update(
+              targetHologram.id,
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+            );
             responseMessage = `Transferred hologram "${targetHologram.name}" to simulation "${command.targetSimulation}".`;
           } else {
             responseMessage = `Hologram "${command.targetHologram}" not found.`;
@@ -267,12 +273,18 @@ export async function POST(
         } else {
           // Transfer all holograms
           for (const hologram of currentHolograms) {
-            HologramModel.transfer(hologram.id, command.targetSimulation);
+            await HologramModel.update(
+              hologram.id,
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+            );
           }
           responseMessage = `Transferred all holograms to simulation "${command.targetSimulation}".`;
         }
 
-        updatedHolograms = HologramModel.getBySimulationId(id);
+        updatedHolograms = await HologramModel.getBySimulationId(id);
         break;
       }
 

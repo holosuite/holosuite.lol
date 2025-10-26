@@ -16,7 +16,7 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const simulation = SimulationModel.getById(id);
+    const simulation = await SimulationModel.getById(id);
     if (!simulation) {
       return NextResponse.json(
         { error: "Simulation not found" },
@@ -24,7 +24,7 @@ export async function GET(
       );
     }
 
-    const messages = MessageModel.getBySimulationId(id);
+    const messages = await MessageModel.getBySimulationId(id);
 
     return NextResponse.json({
       simulation,
@@ -49,7 +49,7 @@ export async function POST(
     const { content } = await request.json();
 
     // Verify simulation exists
-    const simulation = SimulationModel.getById(id);
+    const simulation = await SimulationModel.getById(id);
     if (!simulation) {
       return NextResponse.json(
         { error: "Simulation not found" },
@@ -59,12 +59,24 @@ export async function POST(
 
     // Create user message
     const userMessage = createUserMessage(content);
-    MessageModel.create(id, userMessage);
+    await MessageModel.create(
+      id,
+      userMessage.from,
+      userMessage.content,
+      userMessage.name,
+      userMessage.avatar,
+    );
 
     // Generate AI response
     const aiResponse = generateSimulationResponse(content);
     const assistantMessage = createAssistantMessage(aiResponse);
-    MessageModel.create(id, assistantMessage);
+    await MessageModel.create(
+      id,
+      assistantMessage.from,
+      assistantMessage.content,
+      assistantMessage.name,
+      assistantMessage.avatar,
+    );
 
     return NextResponse.json({
       userMessage,
@@ -89,7 +101,7 @@ export async function PATCH(
     const { updatePrompt, currentSimulationObject } = await request.json();
 
     // Verify simulation exists
-    const simulation = SimulationModel.getById(id);
+    const simulation = await SimulationModel.getById(id);
     if (!simulation) {
       return NextResponse.json(
         { error: "Simulation not found" },
@@ -129,23 +141,37 @@ Please update the simulation object based on this request while maintaining cons
     }
 
     // Update the simulation in the database
-    SimulationModel.updateSimulationObject(
+    await SimulationModel.update(
       id,
+      undefined,
+      undefined,
       updatedSimulationObject,
       updatedAiElementsUsage,
     );
 
     // Create user message for the update
     const userMessage = createUserMessage(updatePrompt);
-    MessageModel.create(id, userMessage);
+    await MessageModel.create(
+      id,
+      userMessage.from,
+      userMessage.content,
+      userMessage.name,
+      userMessage.avatar,
+    );
 
     // Generate AI response about the update
     const aiResponse = `I've updated the simulation based on your request: "${updatePrompt}". The simulation now has new properties and characteristics. You can continue to refine it further by describing additional changes you'd like to make.`;
     const assistantMessage = createAssistantMessage(aiResponse);
-    MessageModel.create(id, assistantMessage);
+    await MessageModel.create(
+      id,
+      assistantMessage.from,
+      assistantMessage.content,
+      assistantMessage.name,
+      assistantMessage.avatar,
+    );
 
     return NextResponse.json({
-      simulation: SimulationModel.getById(id),
+      simulation: await SimulationModel.getById(id),
       updatedSimulationObject,
       updatedAiElementsUsage,
       userMessage,

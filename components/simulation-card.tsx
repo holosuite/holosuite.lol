@@ -1,5 +1,6 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -115,7 +116,9 @@ export function SimulationCard({
             toggleSection={toggleSection}
           >
             <Badge variant="outline" className="ml-auto text-xs">
-              {simulation.environment.scale}
+              {(simulation as any).type === "story"
+                ? (simulation as any).story?.genre || "Story"
+                : simulation.environment?.scale || "Unknown"}
             </Badge>
           </SectionHeader>
         </CardHeader>
@@ -123,18 +126,38 @@ export function SimulationCard({
           <CollapsibleContent>
             <CardContent className="pt-0">
               <div className="space-y-2 text-xs">
-                <p>
-                  <strong>Setting:</strong> {simulation.environment.setting}
-                </p>
-                <p>
-                  <strong>Atmosphere:</strong>{" "}
-                  {simulation.environment.atmosphere}
-                </p>
-                {simulation.environment.timePeriod && (
-                  <p>
-                    <strong>Time Period:</strong>{" "}
-                    {simulation.environment.timePeriod}
-                  </p>
+                {(simulation as any).type === "story" ? (
+                  <>
+                    <p>
+                      <strong>Setting:</strong>{" "}
+                      {(simulation as any).story?.setting || "Unknown"}
+                    </p>
+                    <p>
+                      <strong>Genre:</strong>{" "}
+                      {(simulation as any).story?.genre || "Unknown"}
+                    </p>
+                    <p>
+                      <strong>Estimated Turns:</strong>{" "}
+                      {(simulation as any).story?.estimatedTurns || "Unknown"}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p>
+                      <strong>Setting:</strong>{" "}
+                      {simulation.environment?.setting || "Unknown"}
+                    </p>
+                    <p>
+                      <strong>Atmosphere:</strong>{" "}
+                      {simulation.environment?.atmosphere || "Unknown"}
+                    </p>
+                    {simulation.environment?.timePeriod && (
+                      <p>
+                        <strong>Time Period:</strong>{" "}
+                        {simulation.environment.timePeriod}
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
             </CardContent>
@@ -143,34 +166,106 @@ export function SimulationCard({
       </Card>
 
       {/* Characters */}
-      {simulation.characters && simulation.characters.length > 0 && (
+      {((simulation as any).type === "story"
+        ? (simulation as any).story?.characters
+        : simulation.characters) &&
+        ((simulation as any).type === "story"
+          ? (simulation as any).story?.characters?.length
+          : simulation.characters?.length) > 0 && (
+          <Card>
+            <CardHeader className="pb-2">
+              <SectionHeader
+                title="Characters"
+                icon={Users}
+                section="characters"
+                expandedSections={expandedSections}
+                toggleSection={toggleSection}
+              >
+                <Badge variant="outline" className="ml-auto text-xs">
+                  {(simulation as any).type === "story"
+                    ? (simulation as any).story?.characters?.length || 0
+                    : simulation.characters?.length || 0}
+                </Badge>
+              </SectionHeader>
+            </CardHeader>
+            <Collapsible open={expandedSections.has("characters")}>
+              <CollapsibleContent>
+                <CardContent className="pt-0">
+                  <div className="space-y-2">
+                    {((simulation as any).type === "story"
+                      ? (simulation as any).story?.characters || []
+                      : simulation.characters || []
+                    )
+                      .slice(0, 3)
+                      .map((character: any, index: number) => (
+                        <div key={index} className="border rounded p-2 text-xs">
+                          <h4 className="font-medium">{character.name}</h4>
+                          <p className="text-muted-foreground">
+                            {character.role}
+                          </p>
+                        </div>
+                      ))}
+                    {((simulation as any).type === "story"
+                      ? (simulation as any).story?.characters?.length || 0
+                      : simulation.characters?.length || 0) > 3 && (
+                      <p className="text-xs text-muted-foreground">
+                        +
+                        {((simulation as any).type === "story"
+                          ? (simulation as any).story?.characters?.length || 0
+                          : simulation.characters?.length || 0) - 3}{" "}
+                        more
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
+          </Card>
+        )}
+
+      {/* Objectives - only show for non-story simulations */}
+      {(simulation as any).type !== "story" && (
         <Card>
           <CardHeader className="pb-2">
             <SectionHeader
-              title="Characters"
-              icon={Users}
-              section="characters"
+              title="Objectives"
+              icon={Target}
+              section="objectives"
               expandedSections={expandedSections}
               toggleSection={toggleSection}
             >
               <Badge variant="outline" className="ml-auto text-xs">
-                {simulation.characters.length}
+                {simulation.objectives.length}
               </Badge>
             </SectionHeader>
           </CardHeader>
-          <Collapsible open={expandedSections.has("characters")}>
+          <Collapsible open={expandedSections.has("objectives")}>
             <CollapsibleContent>
               <CardContent className="pt-0">
                 <div className="space-y-2">
-                  {simulation.characters.slice(0, 3).map((character, index) => (
+                  {simulation.objectives.slice(0, 3).map((objective, index) => (
                     <div key={index} className="border rounded p-2 text-xs">
-                      <h4 className="font-medium">{character.name}</h4>
-                      <p className="text-muted-foreground">{character.role}</p>
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-medium">{objective.title}</h4>
+                        <Badge
+                          variant={
+                            objective.type === "primary"
+                              ? "default"
+                              : "secondary"
+                          }
+                          className="text-xs"
+                        >
+                          {objective.type}
+                        </Badge>
+                      </div>
+                      <p className="text-muted-foreground">
+                        {objective.description}
+                      </p>
                     </div>
                   ))}
-                  {simulation.characters.length > 3 && (
+                  {simulation.objectives.length > 3 && (
                     <p className="text-xs text-muted-foreground">
-                      +{simulation.characters.length - 3} more
+                      +{simulation.objectives.length - 3} more
                     </p>
                   )}
                 </div>
@@ -179,54 +274,6 @@ export function SimulationCard({
           </Collapsible>
         </Card>
       )}
-
-      {/* Objectives */}
-      <Card>
-        <CardHeader className="pb-2">
-          <SectionHeader
-            title="Objectives"
-            icon={Target}
-            section="objectives"
-            expandedSections={expandedSections}
-            toggleSection={toggleSection}
-          >
-            <Badge variant="outline" className="ml-auto text-xs">
-              {simulation.objectives.length}
-            </Badge>
-          </SectionHeader>
-        </CardHeader>
-        <Collapsible open={expandedSections.has("objectives")}>
-          <CollapsibleContent>
-            <CardContent className="pt-0">
-              <div className="space-y-2">
-                {simulation.objectives.slice(0, 3).map((objective, index) => (
-                  <div key={index} className="border rounded p-2 text-xs">
-                    <div className="flex items-center justify-between mb-1">
-                      <h4 className="font-medium">{objective.title}</h4>
-                      <Badge
-                        variant={
-                          objective.type === "primary" ? "default" : "secondary"
-                        }
-                        className="text-xs"
-                      >
-                        {objective.type}
-                      </Badge>
-                    </div>
-                    <p className="text-muted-foreground">
-                      {objective.description}
-                    </p>
-                  </div>
-                ))}
-                {simulation.objectives.length > 3 && (
-                  <p className="text-xs text-muted-foreground">
-                    +{simulation.objectives.length - 3} more
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </CollapsibleContent>
-        </Collapsible>
-      </Card>
 
       {/* Mechanics */}
       <Card>
@@ -246,7 +293,7 @@ export function SimulationCard({
                 <div>
                   <strong>Interaction:</strong>
                   <ul className="list-disc list-inside mt-1 space-y-1">
-                    {simulation.mechanics.interaction
+                    {(simulation.mechanics?.interaction || [])
                       .slice(0, 3)
                       .map((interaction, index) => (
                         <li key={index}>{interaction}</li>
@@ -255,12 +302,12 @@ export function SimulationCard({
                 </div>
                 <p>
                   <strong>Progression:</strong>{" "}
-                  {simulation.mechanics.progression}
+                  {simulation.mechanics?.progression || "Unknown"}
                 </p>
                 <p>
                   <strong>Difficulty:</strong>{" "}
                   <Badge variant="outline" className="text-xs">
-                    {simulation.mechanics.difficulty}
+                    {simulation.mechanics?.difficulty || "Unknown"}
                   </Badge>
                 </p>
               </div>
@@ -269,42 +316,44 @@ export function SimulationCard({
         </Collapsible>
       </Card>
 
-      {/* Educational Aspects */}
-      <Card>
-        <CardHeader className="pb-2">
-          <SectionHeader
-            title="Educational"
-            icon={GraduationCap}
-            section="educational"
-            expandedSections={expandedSections}
-            toggleSection={toggleSection}
-          />
-        </CardHeader>
-        <Collapsible open={expandedSections.has("educational")}>
-          <CollapsibleContent>
-            <CardContent className="pt-0">
-              <div className="space-y-2 text-xs">
-                <p>
-                  <strong>Target Audience:</strong>{" "}
-                  {simulation.educational.targetAudience}
-                </p>
-                {simulation.educational.learningOutcomes && (
-                  <div>
-                    <strong>Learning Outcomes:</strong>
-                    <ul className="list-disc list-inside mt-1 space-y-1">
-                      {simulation.educational.learningOutcomes
-                        .slice(0, 3)
-                        .map((outcome, index) => (
-                          <li key={index}>{outcome}</li>
-                        ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </CollapsibleContent>
-        </Collapsible>
-      </Card>
+      {/* Educational Aspects - only show for non-story simulations */}
+      {(simulation as any).type !== "story" && (
+        <Card>
+          <CardHeader className="pb-2">
+            <SectionHeader
+              title="Educational"
+              icon={GraduationCap}
+              section="educational"
+              expandedSections={expandedSections}
+              toggleSection={toggleSection}
+            />
+          </CardHeader>
+          <Collapsible open={expandedSections.has("educational")}>
+            <CollapsibleContent>
+              <CardContent className="pt-0">
+                <div className="space-y-2 text-xs">
+                  <p>
+                    <strong>Target Audience:</strong>{" "}
+                    {simulation.educational.targetAudience}
+                  </p>
+                  {simulation.educational.learningOutcomes && (
+                    <div>
+                      <strong>Learning Outcomes:</strong>
+                      <ul className="list-disc list-inside mt-1 space-y-1">
+                        {simulation.educational.learningOutcomes
+                          .slice(0, 3)
+                          .map((outcome, index) => (
+                            <li key={index}>{outcome}</li>
+                          ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </Card>
+      )}
 
       {/* AI Elements */}
       {aiElements && (
@@ -351,53 +400,55 @@ export function SimulationCard({
         </Card>
       )}
 
-      {/* Implementation Details */}
-      <Card>
-        <CardHeader className="pb-2">
-          <SectionHeader
-            title="Implementation"
-            icon={Layers}
-            section="implementation"
-            expandedSections={expandedSections}
-            toggleSection={toggleSection}
-          />
-        </CardHeader>
-        <Collapsible open={expandedSections.has("implementation")}>
-          <CollapsibleContent>
-            <CardContent className="pt-0">
-              <div className="space-y-2 text-xs">
-                <div>
-                  <strong>Platforms:</strong>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {simulation.implementation.platform.map(
-                      (platform, index) => (
-                        <Badge
-                          key={index}
-                          variant="secondary"
-                          className="text-xs"
-                        >
-                          {platform}
-                        </Badge>
-                      ),
-                    )}
+      {/* Implementation Details - only show for non-story simulations */}
+      {(simulation as any).type !== "story" && (
+        <Card>
+          <CardHeader className="pb-2">
+            <SectionHeader
+              title="Implementation"
+              icon={Layers}
+              section="implementation"
+              expandedSections={expandedSections}
+              toggleSection={toggleSection}
+            />
+          </CardHeader>
+          <Collapsible open={expandedSections.has("implementation")}>
+            <CollapsibleContent>
+              <CardContent className="pt-0">
+                <div className="space-y-2 text-xs">
+                  <div>
+                    <strong>Platforms:</strong>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {simulation.implementation.platform.map(
+                        (platform, index) => (
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="text-xs"
+                          >
+                            {platform}
+                          </Badge>
+                        ),
+                      )}
+                    </div>
                   </div>
+                  {simulation.implementation.estimatedDuration && (
+                    <p>
+                      <strong>Duration:</strong>{" "}
+                      {simulation.implementation.estimatedDuration}
+                    </p>
+                  )}
+                  {simulation.implementation.multiplayer && (
+                    <Badge variant="outline" className="text-xs">
+                      Multiplayer
+                    </Badge>
+                  )}
                 </div>
-                {simulation.implementation.estimatedDuration && (
-                  <p>
-                    <strong>Duration:</strong>{" "}
-                    {simulation.implementation.estimatedDuration}
-                  </p>
-                )}
-                {simulation.implementation.multiplayer && (
-                  <Badge variant="outline" className="text-xs">
-                    Multiplayer
-                  </Badge>
-                )}
-              </div>
-            </CardContent>
-          </CollapsibleContent>
-        </Collapsible>
-      </Card>
+              </CardContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </Card>
+      )}
 
       {/* Tags */}
       <Card>
@@ -409,14 +460,26 @@ export function SimulationCard({
         </CardHeader>
         <CardContent className="pt-0">
           <div className="flex flex-wrap gap-1">
-            {simulation.tags.slice(0, 8).map((tag, index) => (
-              <Badge key={index} variant="secondary" className="text-xs">
-                {tag}
-              </Badge>
-            ))}
-            {simulation.tags.length > 8 && (
+            {((simulation as any).type === "story"
+              ? [(simulation as any).story?.genre || "Story"]
+              : simulation.tags || []
+            )
+              .slice(0, 8)
+              .map((tag: string, index: number) => (
+                <Badge key={index} variant="secondary" className="text-xs">
+                  {tag}
+                </Badge>
+              ))}
+            {((simulation as any).type === "story"
+              ? [(simulation as any).story?.genre || "Story"]
+              : simulation.tags || []
+            ).length > 8 && (
               <Badge variant="outline" className="text-xs">
-                +{simulation.tags.length - 8}
+                +
+                {((simulation as any).type === "story"
+                  ? [(simulation as any).story?.genre || "Story"]
+                  : simulation.tags || []
+                ).length - 8}
               </Badge>
             )}
           </div>

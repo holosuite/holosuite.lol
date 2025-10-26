@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, BookOpen } from "lucide-react";
 import { PromptSubmission } from "@/components/prompt-submission";
 import { LightRays } from "@/components/ui/light-rays";
+import { StorySimulationsList } from "@/components/story-simulations-list";
 
 export default function Home() {
   return (
@@ -381,6 +382,34 @@ export default function Home() {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Story Simulations Section */}
+      <section className="py-32 px-6 bg-background">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <p className="text-muted-foreground text-sm font-mono mb-4">
+              [ INTERACTIVE STORIES ]
+            </p>
+            <h2 className="text-5xl lg:text-6xl font-bold text-foreground mb-6">
+              Choose Your Adventure
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Immerse yourself in interactive story simulations where you choose
+              your character, make decisions that shape the narrative, and
+              generate visual highlights of your journey.
+            </p>
+          </div>
+
+          <StorySimulationsList />
+
+          <div className="text-center mt-12">
+            <Button className="bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-lg text-primary-foreground font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
+              <BookOpen className="w-5 h-5 mr-2" />
+              Explore All Stories
+            </Button>
           </div>
         </div>
       </section>

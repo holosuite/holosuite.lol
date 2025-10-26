@@ -37,9 +37,42 @@ import {
 import { createAssistantMessage } from "@/lib/simulation";
 import type { HologramRow } from "@/lib/hologram-schema";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, Info, GitFork } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Info,
+  GitFork,
+  Play,
+  Users,
+  Clock,
+  CheckCircle,
+} from "lucide-react";
 import { SimulationCard } from "@/components/simulation-card";
+import { HologramSelectionModal } from "@/components/hologram-selection-modal";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import type { Simulation, AIElementsUsage } from "@/lib/simulation-schema";
+
+// Type definition for simulation object
+interface SimulationObject {
+  type?: string;
+  story?: {
+    title: string;
+    description: string;
+    genre: string;
+    setting: string;
+    estimatedTurns: number;
+  };
+}
+
+// Type definition for run objects
+interface Run {
+  id: string;
+  status: string;
+  currentTurn: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export default function SimulationPage({
   params,
@@ -60,6 +93,9 @@ export default function SimulationPage({
   const [isUpdatingState, setIsUpdatingState] = useState(false);
   const [holograms, setHolograms] = useState<HologramRow[]>([]);
   const [isProcessingHologram, setIsProcessingHologram] = useState(false);
+  const [runs, setRuns] = useState<Run[]>([]);
+  const [isLoadingRuns, setIsLoadingRuns] = useState(false);
+  const [showHologramModal, setShowHologramModal] = useState(false);
 
   // Load holograms
   const loadHolograms = useCallback(async () => {
@@ -76,6 +112,35 @@ export default function SimulationPage({
       console.error("Error loading holograms:", error);
     }
   }, [resolvedParams.simulation_id]);
+
+  // Load runs
+  const loadRuns = useCallback(async () => {
+    setIsLoadingRuns(true);
+    try {
+      const response = await fetch(
+        `/api/simulations/${resolvedParams.simulation_id}/runs`,
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setRuns(data.runs || []);
+        console.log("🏃 Runs loaded:", data.runs?.length || 0);
+      }
+    } catch (error) {
+      console.error("Error loading runs:", error);
+    } finally {
+      setIsLoadingRuns(false);
+    }
+  }, [resolvedParams.simulation_id]);
+
+  // Handle run creation
+  const handleRunCreated = useCallback(
+    (runId: string) => {
+      console.log("✅ Run created:", runId);
+      // Redirect to the run page
+      window.location.href = `/simulations/${resolvedParams.simulation_id}/runs/${runId}`;
+    },
+    [resolvedParams.simulation_id],
+  );
 
   // Load simulation data from API
   useEffect(() => {
@@ -128,7 +193,8 @@ export default function SimulationPage({
 
     loadSimulation();
     loadHolograms();
-  }, [resolvedParams.simulation_id, loadHolograms]);
+    loadRuns();
+  }, [resolvedParams.simulation_id, loadHolograms, loadRuns]);
 
   // Update simulation state function
   const handleUpdateSimulationState = useCallback(
@@ -528,13 +594,108 @@ export default function SimulationPage({
                 aiElements={aiElementsUsage || undefined}
               />
 
+              {/* Story Runs Section */}
+              {simulationObject?.type === "story" && (
+                <div className="mt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Play className="w-5 h-5" />
+                      <h3 className="text-lg font-semibold">
+                        Story Runs ({runs.length})
+                      </h3>
+                    </div>
+                    <Button
+                      onClick={() => setShowHologramModal(true)}
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
+                      <Play className="w-4 h-4" />
+                      Start New Run
+                    </Button>
+                  </div>
+
+                  {isLoadingRuns ? (
+                    <div className="text-center py-4">
+                      <div className="text-sm text-muted-foreground">
+                        Loading runs...
+                      </div>
+                    </div>
+                  ) : runs.length > 0 ? (
+                    <div className="space-y-3">
+                      {runs.map((run) => (
+                        <Card
+                          key={run.id}
+                          className="cursor-pointer hover:shadow-md transition-shadow"
+                        >
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h4 className="font-semibold">
+                                    {run.hologram?.name || "Unknown Character"}
+                                  </h4>
+                                  <Badge
+                                    variant={
+                                      run.status === "completed"
+                                        ? "default"
+                                        : "secondary"
+                                    }
+                                    className="text-xs"
+                                  >
+                                    {run.status === "completed" ? (
+                                      <CheckCircle className="w-3 h-3 mr-1" />
+                                    ) : (
+                                      <Clock className="w-3 h-3 mr-1" />
+                                    )}
+                                    {run.status}
+                                  </Badge>
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  Turn {run.currentTurn + 1} • Started{" "}
+                                  {new Date(run.createdAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  window.location.href = `/simulations/${resolvedParams.simulation_id}/runs/${run.id}`;
+                                }}
+                              >
+                                {run.status === "completed"
+                                  ? "View"
+                                  : "Continue"}
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
+                      <Play className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground mb-4">
+                        No story runs yet. Start your first adventure!
+                      </p>
+                      <Button
+                        onClick={() => setShowHologramModal(true)}
+                        className="flex items-center gap-2"
+                      >
+                        <Play className="w-4 h-4" />
+                        Start Story
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Holograms Section */}
               {holograms.length > 0 && (
                 <div className="mt-6">
                   <div className="flex items-center gap-2 mb-4">
-                    <Info className="w-5 h-5" />
+                    <Users className="w-5 h-5" />
                     <h3 className="text-lg font-semibold">
-                      Holograms ({holograms.length})
+                      Available Characters ({holograms.length})
                     </h3>
                   </div>
                   <div className="space-y-3">
@@ -613,6 +774,21 @@ export default function SimulationPage({
           </div>
         )}
       </div>
+
+      {/* Hologram Selection Modal */}
+      <HologramSelectionModal
+        isOpen={showHologramModal}
+        onClose={() => setShowHologramModal(false)}
+        holograms={holograms.map((h) => ({
+          id: h.id,
+          name: h.name,
+          descriptions: h.descriptions,
+          actingInstructions: h.acting_instructions,
+          wardrobe: h.wardrobe,
+        }))}
+        simulationId={resolvedParams.simulation_id}
+        onRunCreated={handleRunCreated}
+      />
     </div>
   );
 }
