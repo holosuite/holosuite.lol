@@ -1,9 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, BookOpen } from "lucide-react";
+import { PromptSubmission } from "@/components/prompt-submission";
+import { LightRays } from "@/components/ui/light-rays";
+import { StorySimulationsList } from "@/components/story-simulations-list";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div
+      className="min-h-screen bg-background text-foreground page-transition"
+      data-page-content
+    >
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-sm bg-background/90 border-b border-border">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
@@ -32,20 +38,8 @@ export default function Home() {
             >
               The Future
             </a>
-            <a
-              href="/partnerships"
-              className="text-foreground hover:text-primary transition"
-            >
-              Partnerships
-            </a>
-            <a
-              href="/careers"
-              className="text-foreground hover:text-primary transition"
-            >
-              Careers
-            </a>
           </div>
-          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-full px-6">
+          <Button className="bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-lg text-primary-foreground font-medium rounded-full px-6 transition-all duration-200 ease-in-out">
             <Plus className="w-4 h-4 mr-2" />
             Book a call
           </Button>
@@ -53,8 +47,15 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6">
-        <div className="container mx-auto">
+      <section className="pt-32 pb-20 px-6 relative overflow-hidden">
+        <LightRays
+          count={6}
+          color="rgba(255, 255, 255, 0.4)"
+          blur={25}
+          speed={6}
+          length="50vh"
+        />
+        <div className="container mx-auto relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <div className="space-y-8">
@@ -67,7 +68,7 @@ export default function Home() {
                   transport you to new worlds and experiences.
                 </p>
               </div>
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-full px-8 py-6 text-lg">
+              <Button className="bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-lg text-primary-foreground font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
                 <Plus className="w-5 h-5 mr-2" />
                 Book a call
               </Button>
@@ -103,14 +104,14 @@ export default function Home() {
                   <div className="bg-card rounded-2xl p-4 shadow-lg ml-8">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-primary/80"></div>
-                      {/* <div className="flex-1"> */}
-                      {/*   <p className="text-card-foreground font-medium"> */}
-                      {/*     David Campbell */}
-                      {/*   </p> */}
-                      {/*   <p className="text-sm text-muted-foreground"> */}
-                      {/*     CFO of Compose, scheduled a meeting */}
-                      {/*   </p> */}
-                      {/* </div> */}
+                      <div className="flex-1">
+                        <p className="text-card-foreground font-medium">
+                          David Campbell
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          CFO of Compose, scheduled a meeting
+                        </p>
+                      </div>
                       <span className="text-xs text-muted-foreground">1d</span>
                     </div>
                   </div>
@@ -136,6 +137,13 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Prompt Submission Section */}
+      <section className="py-20 px-6 bg-gradient-to-b from-card to-background">
+        <div className="container mx-auto">
+          <PromptSubmission />
         </div>
       </section>
 
@@ -175,6 +183,59 @@ export default function Home() {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-16 max-w-6xl mx-auto">
+            {/* Step 001 */}
+            <div className="space-y-6">
+              <div className="bg-card/50 rounded-3xl p-8 border border-border backdrop-blur-sm">
+                <div className="aspect-square bg-gradient-to-br from-card/10 to-transparent rounded-2xl mb-6 overflow-hidden">
+                  <div className="w-full h-full bg-gradient-to-br from-card/30 to-card/10 flex items-center justify-center">
+                    <div className="text-muted-foreground text-lg font-medium text-center">
+                      <div className="text-2xl mb-2">🎨</div>
+                      <div>Simulation Designer</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <p className="text-muted-foreground text-sm font-mono">
+                  [ 001 ]
+                </p>
+                <h3 className="text-3xl font-bold text-foreground">
+                  Meet your simulation designer
+                </h3>
+                <p className="text-muted-foreground text-lg">
+                  We pair you with a world-class simulation expert who designs
+                  immersive experiences tailored to your entertainment needs and
+                  objectives.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 002 */}
+            <div className="space-y-6">
+              <div className="bg-card/50 rounded-3xl p-8 border border-border backdrop-blur-sm">
+                <div className="aspect-square bg-gradient-to-br from-card/10 to-transparent rounded-2xl mb-6 overflow-hidden">
+                  <div className="w-full h-full bg-gradient-to-br from-card/30 to-card/10 flex items-center justify-center">
+                    <div className="text-muted-foreground text-lg font-medium text-center">
+                      <div className="text-2xl mb-2">🤖</div>
+                      <div>AI Simulation</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <p className="text-muted-foreground text-sm font-mono">
+                  [ 002 ]
+                </p>
+                <h3 className="text-3xl font-bold text-foreground">
+                  Advanced AI simulation
+                </h3>
+                <p className="text-muted-foreground text-lg">
+                  Our AI systems create dynamic, responsive environments that
+                  adapt to user interactions in real-time.
+                </p>
+              </div>
+            </div>
+
             {/* Step 003 */}
             <div className="space-y-6">
               <div className="bg-card/50 rounded-3xl p-8 border border-border backdrop-blur-sm">
@@ -182,7 +243,7 @@ export default function Home() {
                   <div className="w-full h-full bg-gradient-to-br from-card/30 to-card/10 flex items-center justify-center">
                     <div className="text-muted-foreground text-lg font-medium text-center">
                       <div className="text-2xl mb-2">✨</div>
-                      <div>AI Creativity</div>
+                      <div>Human Creativity</div>
                     </div>
                   </div>
                 </div>
@@ -195,8 +256,8 @@ export default function Home() {
                   Human creativity
                 </h3>
                 <p className="text-muted-foreground text-lg">
-                  Our agents craft compelling narratives and experiences with
-                  cutting-edge technology.
+                  Our designers craft compelling narratives and experiences that
+                  blend cutting-edge technology with human storytelling.
                 </p>
               </div>
             </div>
@@ -229,7 +290,7 @@ export default function Home() {
           </div>
 
           <div className="text-center mt-16">
-            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-medium rounded-full px-8 py-6 text-lg">
+            <Button className="bg-accent hover:bg-accent/90 hover:scale-105 hover:shadow-lg text-accent-foreground font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
               <Plus className="w-5 h-5 mr-2" />
               Get Started
             </Button>
@@ -325,6 +386,34 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Story Simulations Section */}
+      <section className="py-32 px-6 bg-background">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <p className="text-muted-foreground text-sm font-mono mb-4">
+              [ INTERACTIVE STORIES ]
+            </p>
+            <h2 className="text-5xl lg:text-6xl font-bold text-foreground mb-6">
+              Choose Your Adventure
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Immerse yourself in interactive story simulations where you choose
+              your character, make decisions that shape the narrative, and
+              generate visual highlights of your journey.
+            </p>
+          </div>
+
+          <StorySimulationsList />
+
+          <div className="text-center mt-12">
+            <Button className="bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-lg text-primary-foreground font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
+              <BookOpen className="w-5 h-5 mr-2" />
+              Explore All Stories
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Message Section */}
       <section className="py-32 px-6 bg-gradient-to-b from-card to-background">
         <div className="container mx-auto max-w-6xl">
@@ -344,16 +433,14 @@ export default function Home() {
             <p className="text-5xl font-bold text-accent mb-8">
               Content is king.
             </p>
-            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-medium rounded-full px-8 py-6 text-lg">
+            <Button className="bg-accent hover:bg-accent/90 hover:scale-105 hover:shadow-lg text-accent-foreground font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
               <Plus className="w-5 h-5 mr-2" />
               Get started
             </Button>
           </div>
 
           <div className="mt-12 bg-secondary rounded-3xl p-12 border border-border">
-            <p className="text-accent text-sm font-mono mb-4">
-              [ TOP SECRET ]
-            </p>
+            <p className="text-accent text-sm font-mono mb-4">[ TOP SECRET ]</p>
             <h3 className="text-3xl font-bold text-secondary-foreground mb-6">
               Coming soon..
             </h3>
@@ -362,7 +449,7 @@ export default function Home() {
               your company. If you run marketing at a 200+ person company, we
               have limited spots for design partners.
             </p>
-            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-medium rounded-full px-8 py-6 text-lg">
+            <Button className="bg-accent hover:bg-accent/90 hover:scale-105 hover:shadow-lg text-accent-foreground font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
               <Plus className="w-5 h-5 mr-2" />
               Inquire within
             </Button>
@@ -433,7 +520,7 @@ export default function Home() {
               </a>
             </div>
 
-            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-medium rounded-full px-8 py-6 text-lg">
+            <Button className="bg-accent hover:bg-accent/90 hover:scale-105 hover:shadow-lg text-accent-foreground font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
               <Plus className="w-5 h-5 mr-2" />
               Get Started
             </Button>
