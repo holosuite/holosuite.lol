@@ -41,27 +41,27 @@ export function PromptSubmission() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 mb-4">
-          <Sparkles className="w-6 h-6 text-primary" />
-          <h2 className="text-3xl font-bold text-foreground">
+    <div className="w-full max-w-4xl mx-auto">
+      <div className="text-center mb-12">
+        <div className="inline-flex items-center gap-3 mb-6">
+          <Sparkles className="w-8 h-8 text-primary" />
+          <h2 className="text-4xl lg:text-5xl font-bold text-foreground">
             Start Building Your Simulation
           </h2>
         </div>
-        <p className="text-lg text-muted-foreground">
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           Describe your vision and our AI simulation builder will help you
           create it
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div className="relative">
           <Textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="Describe the simulation you'd like to create... (e.g., 'A space exploration game where players discover new planets and civilizations')"
-            className="min-h-[120px] resize-none text-base"
+            className="min-h-[160px] resize-none text-lg p-6 placeholder:text-lg placeholder:italic placeholder:opacity-60"
             disabled={isSubmitting}
           />
         </div>
@@ -70,16 +70,16 @@ export function PromptSubmission() {
           <Button
             type="submit"
             disabled={!prompt.trim() || isSubmitting}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-full px-8 py-6 text-lg min-w-[200px]"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-full px-10 py-7 text-xl min-w-[240px] transition-all hover:scale-105"
           >
             {isSubmitting ? (
               <>
-                <div className="w-5 h-5 mr-2 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                <div className="w-6 h-6 mr-2 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
                 Creating...
               </>
             ) : (
               <>
-                <Send className="w-5 h-5 mr-2" />
+                <Send className="w-6 h-6 mr-2" />
                 Create Simulation
               </>
             )}
@@ -87,8 +87,8 @@ export function PromptSubmission() {
         </div>
       </form>
 
-      <div className="mt-6 text-center">
-        <p className="text-sm text-muted-foreground">
+      <div className="mt-8 text-center">
+        <p className="text-base text-muted-foreground">
           Our AI will analyze your prompt and start building your simulation
           immediately
         </p>
