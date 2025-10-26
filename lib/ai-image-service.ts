@@ -1,10 +1,13 @@
 import { GoogleGenAI } from "@google/genai";
+import { put } from "@vercel/blob";
 
 // Image generation result interface
 export interface ImageGenerationResult {
-  imageUrl: string;
-  imageData: string;
+  imageUrl: string; // Data URL for immediate display
+  imageData: string; // Base64 encoded image data
   imagePrompt: string;
+  blobUrl?: string; // Vercel Blob URL for persistent storage
+  imageId?: string; // Unique identifier for the image
 }
 
 // Image generation service for story simulations
@@ -29,6 +32,7 @@ export class ImageGenerationService {
    * @param characterContext - Information about the character being played
    * @param previousImages - Array of previous image prompts for continuity
    * @param storyStyle - Visual style of the story
+   * @param uploadToBlob - Whether to upload the image to Vercel Blob storage
    * @returns Promise<ImageGenerationResult>
    */
   async generateStoryImage(
@@ -36,6 +40,7 @@ export class ImageGenerationService {
     characterContext: string,
     previousImages: string[] = [],
     storyStyle: string = "cinematic",
+    uploadToBlob: boolean = true,
   ): Promise<ImageGenerationResult> {
     try {
       console.log("🎨 Generating story image:", {
@@ -43,6 +48,7 @@ export class ImageGenerationService {
         hasCharacterContext: !!characterContext,
         previousImagesCount: previousImages.length,
         storyStyle,
+        uploadToBlob,
       });
 
       // Build the image prompt with continuity considerations
@@ -55,15 +61,34 @@ export class ImageGenerationService {
 
       console.log("📝 Image prompt:", imagePrompt);
 
-      // For now, we'll use a placeholder approach since the AI SDK doesn't directly support image generation
-      // In a real implementation, you would call the Google GenAI image generation API directly
+      // Generate image using Imagen 4.0
       const imageData = await this.generateImageViaAPI(imagePrompt);
 
-      return {
+      // Generate unique image ID
+      const imageId = `story-image-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      const result: ImageGenerationResult = {
         imageUrl: `data:image/png;base64,${imageData}`,
         imageData: imageData,
         imagePrompt: imagePrompt,
+        imageId: imageId,
       };
+
+      // Upload to Vercel Blob storage if requested
+      if (uploadToBlob) {
+        try {
+          const blobUrl = await this.uploadImageToBlob(imageData, imageId);
+          result.blobUrl = blobUrl;
+          console.log("✅ Image uploaded to Vercel Blob:", { blobUrl });
+        } catch (blobError) {
+          console.error(
+            "⚠️ Failed to upload to Vercel Blob, continuing with data URL:",
+            blobError,
+          );
+        }
+      }
+
+      return result;
     } catch (error) {
       console.error("❌ Error generating story image:", error);
       throw new Error(
@@ -105,19 +130,21 @@ export class ImageGenerationService {
   }
 
   /**
-   * Generate image via Google GenAI API using Gemini 2.5 Flash Image
+   * Generate image via Google GenAI API using Imagen 4.0
    * This uses the actual Google GenAI image generation API
    */
   private async generateImageViaAPI(prompt: string): Promise<string> {
     try {
       console.log("🔄 Calling Google GenAI API with prompt:", prompt);
 
-      // Use Google's Imagen model for image generation
+      // Use Google's Imagen 4.0 model for image generation
       const imageResponse = await this.ai.models.generateImages({
         model: "imagen-4.0-generate-001",
         prompt: prompt,
         config: {
           numberOfImages: 1,
+          imageSize: "1K",
+          aspectRatio: "1:1",
         },
       });
 
@@ -142,12 +169,45 @@ export class ImageGenerationService {
   }
 
   /**
+   * Upload image data to Vercel Blob storage
+   * @param imageData - Base64 encoded image data
+   * @param imageId - Unique identifier for the image
+   * @returns Promise<string> - Vercel Blob URL
+   */
+  private async uploadImageToBlob(
+    imageData: string,
+    imageId: string,
+  ): Promise<string> {
+    try {
+      console.log("📤 Uploading image to Vercel Blob:", { imageId });
+
+      // Convert base64 to buffer
+      const imageBuffer = Buffer.from(imageData, "base64");
+
+      // Upload to Vercel Blob storage
+      const blob = await put(`story-images/${imageId}.png`, imageBuffer, {
+        access: "public",
+        contentType: "image/png",
+      });
+
+      console.log("✅ Image uploaded to Vercel Blob:", { blobUrl: blob.url });
+      return blob.url;
+    } catch (error) {
+      console.error("❌ Error uploading image to Vercel Blob:", error);
+      throw new Error(
+        `Failed to upload image to blob storage: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
+    }
+  }
+
+  /**
    * Generate an image for the initial story scene
    */
   async generateInitialSceneImage(
     storyTitle: string,
     initialScene: string,
     storyStyle: string,
+    uploadToBlob: boolean = true,
   ): Promise<ImageGenerationResult> {
     const sceneDescription = `Opening scene of "${storyTitle}": ${initialScene}`;
     const characterContext = "The main character entering the scene";
@@ -157,6 +217,7 @@ export class ImageGenerationService {
       characterContext,
       [],
       storyStyle,
+      uploadToBlob,
     );
   }
 
@@ -168,12 +229,14 @@ export class ImageGenerationService {
     characterContext: string,
     previousTurnImages: string[],
     storyStyle: string,
+    uploadToBlob: boolean = true,
   ): Promise<ImageGenerationResult> {
     return this.generateStoryImage(
       turnDescription,
       characterContext,
       previousTurnImages,
       storyStyle,
+      uploadToBlob,
     );
   }
 }
