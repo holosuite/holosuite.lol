@@ -46,75 +46,75 @@
 @layer base {
   :root {
     --radius: 1rem;
-    /* Accessible Light Theme - Warm Beiges */
-    --background: 45 20% 95%; /* Warm off-white */
-    --foreground: 30 15% 15%; /* Dark warm brown */
-    --card: 45 15% 92%; /* Light warm beige */
-    --card-foreground: 30 15% 15%;
-    --popover: 45 15% 92%;
-    --popover-foreground: 30 15% 15%;
-    --primary: 35 60% 45%; /* Rich warm brown */
-    --primary-foreground: 45 20% 95%; /* Light text on dark */
-    --secondary: 45 15% 85%; /* Medium warm beige */
-    --secondary-foreground: 30 15% 15%;
-    --muted: 45 10% 88%; /* Subtle warm beige */
-    --muted-foreground: 30 10% 40%; /* Accessible muted text */
-    --accent: 35 60% 45%;
-    --accent-foreground: 45 20% 95%;
+    /* Earthy Tones Palette - Light Theme */
+    --background: 53 51% 87%; /* beige */
+    --foreground: 60 16% 37%; /* darker sage for text */
+    --card: 53 45% 71%; /* vanilla */
+    --card-foreground: 60 16% 37%;
+    --popover: 53 45% 71%; /* vanilla */
+    --popover-foreground: 60 16% 37%;
+    --primary: 357 28% 63%; /* old-rose */
+    --primary-foreground: 53 51% 87%; /* beige for contrast */
+    --secondary: 60 16% 57%; /* sage */
+    --secondary-foreground: 53 51% 87%;
+    --muted: 53 45% 71%; /* vanilla */
+    --muted-foreground: 60 16% 47%; /* muted sage */
+    --accent: 17 48% 70%; /* buff */
+    --accent-foreground: 60 16% 37%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 45 15% 80%; /* Visible warm borders */
-    --input: 45 15% 80%;
-    --ring: 35 60% 45%;
-    --chart-1: 35 60% 45%;
-    --chart-2: 25 50% 55%;
-    --chart-3: 45 40% 65%;
-    --chart-4: 15 60% 50%;
-    --chart-5: 55 50% 60%;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    --border: 60 16% 67%; /* lighter sage */
+    --input: 60 16% 67%;
+    --ring: 357 28% 63%; /* old-rose */
+    --chart-1: 357 28% 63%; /* old-rose */
+    --chart-2: 17 48% 70%; /* buff */
+    --chart-3: 53 45% 71%; /* vanilla */
+    --chart-4: 60 16% 57%; /* sage */
+    --chart-5: 53 51% 87%; /* beige */
+    --sidebar: 53 51% 87%; /* beige */
+    --sidebar-foreground: 60 16% 37%;
+    --sidebar-primary: 357 28% 63%; /* old-rose */
+    --sidebar-primary-foreground: 53 51% 87%;
+    --sidebar-accent: 53 45% 71%; /* vanilla */
+    --sidebar-accent-foreground: 60 16% 37%;
+    --sidebar-border: 60 16% 67%;
+    --sidebar-ring: 357 28% 63%;
   }
 
   .dark {
-    /* Accessible Dark Theme - Warm Beiges */
-    --background: 30 15% 12%; /* Dark warm brown */
-    --foreground: 45 20% 95%; /* Warm off-white */
-    --card: 30 15% 8%; /* Darker warm brown */
-    --card-foreground: 45 20% 95%;
-    --popover: 30 15% 8%;
-    --popover-foreground: 45 20% 95%;
-    --primary: 35 70% 55%; /* Warm golden beige */
-    --primary-foreground: 30 15% 12%; /* Dark text on light */
-    --secondary: 30 15% 18%; /* Medium dark warm brown */
-    --secondary-foreground: 45 20% 95%;
-    --muted: 30 10% 20%; /* Subtle dark warm */
-    --muted-foreground: 45 15% 70%; /* Accessible muted text */
-    --accent: 35 70% 55%;
-    --accent-foreground: 30 15% 12%;
+    /* Earthy Tones Palette - Dark Theme */
+    --background: 60 16% 27%; /* darkened sage */
+    --foreground: 53 51% 87%; /* beige */
+    --card: 60 16% 32%; /* slightly lighter dark sage */
+    --card-foreground: 53 51% 87%;
+    --popover: 60 16% 32%;
+    --popover-foreground: 53 51% 87%;
+    --primary: 357 28% 63%; /* old-rose */
+    --primary-foreground: 53 51% 87%; /* beige */
+    --secondary: 60 16% 40%; /* medium sage */
+    --secondary-foreground: 53 51% 87%;
+    --muted: 60 16% 35%; /* muted dark sage */
+    --muted-foreground: 53 45% 71%; /* vanilla */
+    --accent: 17 48% 70%; /* buff */
+    --accent-foreground: 60 16% 27%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
-    --border: 30 15% 25%; /* Visible warm borders */
-    --input: 30 15% 25%;
-    --ring: 35 70% 55%;
-    --chart-1: 35 70% 55%;
-    --chart-2: 25 60% 65%;
-    --chart-3: 45 50% 75%;
-    --chart-4: 15 70% 60%;
-    --chart-5: 55 60% 70%;
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --border: 60 16% 45%; /* medium sage border */
+    --input: 60 16% 45%;
+    --ring: 357 28% 63%; /* old-rose */
+    --chart-1: 357 28% 63%; /* old-rose */
+    --chart-2: 17 48% 70%; /* buff */
+    --chart-3: 53 45% 71%; /* vanilla */
+    --chart-4: 60 16% 57%; /* sage */
+    --chart-5: 53 51% 87%; /* beige */
+    --sidebar: 60 16% 27%; /* darkened sage */
+    --sidebar-foreground: 53 51% 87%;
+    --sidebar-primary: 357 28% 63%; /* old-rose */
+    --sidebar-primary-foreground: 53 51% 87%;
+    --sidebar-accent: 60 16% 35%;
+    --sidebar-accent-foreground: 53 51% 87%;
+    --sidebar-border: 60 16% 45%;
+    --sidebar-ring: 357 28% 63%;
   }
 
   * {
