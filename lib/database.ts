@@ -3,7 +3,14 @@ import { randomUUID } from "./uuid";
 import { SimulationMessage } from "./simulation";
 
 // Database connection
-const sql = neon(process.env.DATABASE_URL!);
+const sql = neon(process.env.DATABASE_URL || "");
+
+// Helper function to check if database is available
+function checkDatabaseConnection() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL is required for database operations");
+  }
+}
 
 // Database row interface for simulations
 interface SimulationRow {
@@ -66,6 +73,11 @@ interface TurnRow {
 
 // Initialize database schema
 export async function initializeDatabase() {
+  if (!process.env.DATABASE_URL) {
+    console.log("⚠️ DATABASE_URL not found, skipping database initialization");
+    return;
+  }
+
   try {
     // Simulations table
     await sql`
@@ -162,6 +174,7 @@ export class SimulationModel {
     simulationObject?: unknown,
     aiElementsUsage?: unknown,
   ): Promise<string> {
+    checkDatabaseConnection();
     const id = randomUUID();
 
     console.log("🗄️ Creating simulation in database:", {
@@ -184,6 +197,7 @@ export class SimulationModel {
   }
 
   static async getById(id: string): Promise<SimulationRow | null> {
+    checkDatabaseConnection();
     const result = await sql`
       SELECT * FROM simulations WHERE id = ${id}
     `;
@@ -191,6 +205,7 @@ export class SimulationModel {
   }
 
   static async getAll() {
+    checkDatabaseConnection();
     return await sql`
       SELECT * FROM simulations ORDER BY created_at DESC
     `;
