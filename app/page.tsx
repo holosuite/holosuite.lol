@@ -47,7 +47,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-6 relative overflow-hidden">
-        <LightRays 
+        <LightRays
           count={6}
           color="rgba(255, 255, 255, 0.4)"
           blur={25}
@@ -411,9 +411,7 @@ export default function Home() {
           </div>
 
           <div className="mt-12 bg-secondary rounded-3xl p-12 border border-border">
-            <p className="text-accent text-sm font-mono mb-4">
-              [ TOP SECRET ]
-            </p>
+            <p className="text-accent text-sm font-mono mb-4">[ TOP SECRET ]</p>
             <h3 className="text-3xl font-bold text-secondary-foreground mb-6">
               Coming soon..
             </h3>

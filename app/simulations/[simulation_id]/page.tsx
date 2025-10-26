@@ -153,11 +153,7 @@ export default function SimulationPage({
         setIsUpdatingState(false);
       }
     },
-    [
-      simulationObject,
-      isUpdatingState,
-      resolvedParams.simulation_id,
-    ],
+    [simulationObject, isUpdatingState, resolvedParams.simulation_id],
   );
 
   const handleSubmit = useCallback(
@@ -226,7 +222,11 @@ export default function SimulationPage({
         setStatus(undefined);
       }
     },
-    [resolvedParams.simulation_id, handleUpdateSimulationState, simulationObject],
+    [
+      resolvedParams.simulation_id,
+      handleUpdateSimulationState,
+      simulationObject,
+    ],
   );
 
   // Fork simulation function
@@ -284,7 +284,6 @@ export default function SimulationPage({
     const lowerContent = content.toLowerCase();
     return updateKeywords.some((keyword) => lowerContent.includes(keyword));
   };
-
 
   if (isLoading) {
     return (
