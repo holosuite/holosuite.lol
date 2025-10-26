@@ -3,9 +3,44 @@ import { PromptSubmission } from "@/components/prompt-submission";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import type { Metadata } from "next";
 
 // Force dynamic rendering
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "My Simulations | Manage AI-Powered Interactive Experiences",
+  description:
+    "Manage and explore all your AI-powered simulations. View, edit, and continue building interactive stories, dynamic content, and immersive experiences created with Google Gemini AI.",
+  keywords: [
+    "simulation management",
+    "AI simulation dashboard",
+    "interactive story management",
+    "simulation portfolio",
+    "AI content library",
+    "simulation organizer",
+    "story simulation collection",
+  ],
+  openGraph: {
+    title: "My Simulations | Manage AI-Powered Interactive Experiences",
+    description:
+      "Manage and explore all your AI-powered simulations. View, edit, and continue building interactive stories and immersive experiences.",
+    url: "/simulations",
+    images: [
+      {
+        url: "/og-simulations.png",
+        width: 1200,
+        height: 630,
+        alt: "Holosuite - Simulation Management Dashboard",
+      },
+    ],
+  },
+  twitter: {
+    title: "My Simulations | Manage AI-Powered Interactive Experiences",
+    description:
+      "Manage and explore all your AI-powered simulations. View, edit, and continue building interactive stories and immersive experiences.",
+  },
+};
 
 interface Simulation {
   id: string;

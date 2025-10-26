@@ -1,5 +1,41 @@
 import { PromptSubmission } from "@/components/prompt-submission";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Create AI-Powered Interactive Simulations | Holosuite",
+  description:
+    "Transform your ideas into immersive AI-powered simulations. Create interactive stories, generate custom images with Imagen 4.0, and produce cinematic videos with Veo 3.1. Start building your simulation today.",
+  keywords: [
+    "AI simulation creator",
+    "interactive story generator",
+    "AI-powered entertainment",
+    "simulation builder",
+    "dynamic storytelling",
+    "AI content creation",
+    "interactive experiences",
+    "story simulation platform",
+  ],
+  openGraph: {
+    title: "Create AI-Powered Interactive Simulations | Holosuite",
+    description:
+      "Transform your ideas into immersive AI-powered simulations. Create interactive stories, generate custom images, and produce cinematic videos.",
+    url: "/",
+    images: [
+      {
+        url: "/og-home.png",
+        width: 1200,
+        height: 630,
+        alt: "Holosuite - Create AI-Powered Interactive Simulations",
+      },
+    ],
+  },
+  twitter: {
+    title: "Create AI-Powered Interactive Simulations | Holosuite",
+    description:
+      "Transform your ideas into immersive AI-powered simulations. Create interactive stories, generate custom images, and produce cinematic videos.",
+  },
+};
 
 export default function Home() {
   const models = ["Claude 4.5", "GPT-5", "Gemini 2.5", "Grok 4"];
