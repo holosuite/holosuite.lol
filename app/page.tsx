@@ -79,108 +79,103 @@ export default function Home() {
         className="py-32 px-6 bg-gradient-to-b from-background to-card"
       >
         <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-primary text-sm font-medium mb-4">
-              How it Works
-            </p>
+          <div className="mb-20 flex justify-center">
+            <div className="inline-block">
+              <h2 className="text-5xl font-bold text-foreground mb-2">
+                How it works
+              </h2>
+              <div className="h-1 bg-primary rounded-full"></div>
+            </div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-16 max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
             {/* Step 001 */}
-            <div className="space-y-6">
-              <div className="bg-card/50 rounded-3xl p-8 border border-border backdrop-blur-sm">
-                <div className="aspect-square bg-gradient-to-br from-card/10 to-transparent rounded-2xl mb-6 overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-card/30 to-card/10 flex items-center justify-center">
-                    <div className="text-muted-foreground text-lg font-medium text-center">
-                      <div className="text-2xl mb-2">💭</div>
-                      <div>Natural Language Input</div>
-                    </div>
+            <div className="space-y-4">
+              <div className="bg-card/50 rounded-2xl p-6 border border-border backdrop-blur-sm">
+                <div className="aspect-video bg-gradient-to-br from-card/10 to-transparent rounded-xl overflow-hidden flex items-center justify-center">
+                  <div className="text-muted-foreground text-base font-medium text-center">
+                    <div className="text-4xl mb-2">💭</div>
+                    <div>Natural Language Input</div>
                   </div>
                 </div>
               </div>
-              <div className="space-y-3">
-                <p className="text-muted-foreground text-sm font-mono">
-                  [ 001 ]
+              <div className="space-y-2">
+                <p className="text-muted-foreground text-xs font-mono tracking-wider">
+                  STEP 001
                 </p>
-                <h3 className="text-3xl font-bold text-foreground">
+                <h3 className="text-2xl font-bold text-foreground">
                   Describe your vision
                 </h3>
-                <p className="text-muted-foreground text-lg">
+                <p className="text-muted-foreground text-base">
                   Simply describe the simulation you want to create in natural language. Our AI understands your intent and requirements.
                 </p>
               </div>
             </div>
 
             {/* Step 002 */}
-            <div className="space-y-6">
-              <div className="bg-card/50 rounded-3xl p-8 border border-border backdrop-blur-sm">
-                <div className="aspect-square bg-gradient-to-br from-card/10 to-transparent rounded-2xl mb-6 overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-card/30 to-card/10 flex items-center justify-center">
-                    <div className="text-muted-foreground text-lg font-medium text-center">
-                      <div className="text-2xl mb-2">🤖</div>
-                      <div>AI Generation</div>
-                    </div>
+            <div className="space-y-4">
+              <div className="bg-card/50 rounded-2xl p-6 border border-border backdrop-blur-sm">
+                <div className="aspect-video bg-gradient-to-br from-card/10 to-transparent rounded-xl overflow-hidden flex items-center justify-center">
+                  <div className="text-muted-foreground text-base font-medium text-center">
+                    <div className="text-4xl mb-2">🤖</div>
+                    <div>AI Generation</div>
                   </div>
                 </div>
               </div>
-              <div className="space-y-3">
-                <p className="text-muted-foreground text-sm font-mono">
-                  [ 002 ]
+              <div className="space-y-2">
+                <p className="text-muted-foreground text-xs font-mono tracking-wider">
+                  STEP 002
                 </p>
-                <h3 className="text-3xl font-bold text-foreground">
+                <h3 className="text-2xl font-bold text-foreground">
                   AI builds your simulation
                 </h3>
-                <p className="text-muted-foreground text-lg">
+                <p className="text-muted-foreground text-base">
                   Google Gemini AI generates comprehensive simulation specifications, character holograms, and interactive story elements.
                 </p>
               </div>
             </div>
 
             {/* Step 003 */}
-            <div className="space-y-6">
-              <div className="bg-card/50 rounded-3xl p-8 border border-border backdrop-blur-sm">
-                <div className="aspect-square bg-gradient-to-br from-card/10 to-transparent rounded-2xl mb-6 overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-card/30 to-card/10 flex items-center justify-center">
-                    <div className="text-muted-foreground text-lg font-medium text-center">
-                      <div className="text-2xl mb-2">🎭</div>
-                      <div>Dynamic Characters</div>
-                    </div>
+            <div className="space-y-4">
+              <div className="bg-card/50 rounded-2xl p-6 border border-border backdrop-blur-sm">
+                <div className="aspect-video bg-gradient-to-br from-card/10 to-transparent rounded-xl overflow-hidden flex items-center justify-center">
+                  <div className="text-muted-foreground text-base font-medium text-center">
+                    <div className="text-4xl mb-2">🎭</div>
+                    <div>Dynamic Characters</div>
                   </div>
                 </div>
               </div>
-              <div className="space-y-3">
-                <p className="text-muted-foreground text-sm font-mono">
-                  [ 003 ]
+              <div className="space-y-2">
+                <p className="text-muted-foreground text-xs font-mono tracking-wider">
+                  STEP 003
                 </p>
-                <h3 className="text-3xl font-bold text-foreground">
+                <h3 className="text-2xl font-bold text-foreground">
                   Interact with AI characters
                 </h3>
-                <p className="text-muted-foreground text-lg">
+                <p className="text-muted-foreground text-base">
                   AI-generated holograms bring your simulation to life with responsive, contextual interactions and unique personalities.
                 </p>
               </div>
             </div>
 
             {/* Step 004 */}
-            <div className="space-y-6">
-              <div className="bg-card/50 rounded-3xl p-8 border border-border backdrop-blur-sm">
-                <div className="aspect-square bg-gradient-to-br from-card/10 to-transparent rounded-2xl mb-6 overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-card/30 to-card/10 flex items-center justify-center">
-                    <div className="text-muted-foreground text-lg font-medium text-center">
-                      <div className="text-2xl mb-2">🌍</div>
-                      <div>Immersive Experience</div>
-                    </div>
+            <div className="space-y-4">
+              <div className="bg-card/50 rounded-2xl p-6 border border-border backdrop-blur-sm">
+                <div className="aspect-video bg-gradient-to-br from-card/10 to-transparent rounded-xl overflow-hidden flex items-center justify-center">
+                  <div className="text-muted-foreground text-base font-medium text-center">
+                    <div className="text-4xl mb-2">🌍</div>
+                    <div>Immersive Experience</div>
                   </div>
                 </div>
               </div>
-              <div className="space-y-3">
-                <p className="text-muted-foreground text-sm font-mono">
-                  [ 004 ]
+              <div className="space-y-2">
+                <p className="text-muted-foreground text-xs font-mono tracking-wider">
+                  STEP 004
                 </p>
-                <h3 className="text-3xl font-bold text-foreground">
+                <h3 className="text-2xl font-bold text-foreground">
                   Experience your world
                 </h3>
-                <p className="text-muted-foreground text-lg">
+                <p className="text-muted-foreground text-base">
                   Dive into fully immersive simulations with turn-based storytelling, dynamic responses, and evolving narratives.
                 </p>
               </div>
