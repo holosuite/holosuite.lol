@@ -66,5 +66,5 @@ export function createAssistantMessage(content: string): SimulationMessage {
 }
 
 export function generateSimulationResponse(prompt: string): string {
-  return `I understand you want to work on: "${prompt}". Let me help you design a simulation for this. I can create interactive environments, character behaviors, and dynamic scenarios. What specific aspects would you like me to focus on first?`;
+  return `I understand you want to work on: "${prompt}". I'll analyze your request and create a comprehensive simulation design, making intelligent assumptions to fill in any gaps. I'll design interactive environments, character behaviors, dynamic scenarios, and technical implementation details. You can always iterate and refine any aspects I've imagined - I'm here to build upon your vision with creative and practical solutions.`;
 }

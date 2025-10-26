@@ -1,15 +1,16 @@
 import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
-import { z } from "zod";
 import {
   CompleteSimulationSchema,
   type CompleteSimulation,
 } from "./simulation-schema";
+import { AI_CONFIG } from "./ai-config";
+import { withRetry, handleAIError, validateAIResponse } from "./ai-utils";
 
 // AI service for generating simulation objects from natural language
 export class SimulationGenerator {
   private getModel() {
-    // Use Google Gemini 2.5-flash
+    // Use Google Gemini 2.5-flash with configuration
     return google("gemini-2.5-flash");
   }
 
@@ -44,125 +45,47 @@ When analyzing natural language descriptions, create comprehensive simulation sp
    - Technical requirements and recommendations
    - Priority and complexity assessments
 
+IMPORTANT: Never ask the user for follow-up information or clarification. Instead, make intelligent assumptions and fill in any gaps with creative, practical solutions. Be proactive and comprehensive in your design approach. The user can always iterate and refine any aspects you've imagined.
+
 Focus on creating engaging, educational, and technically feasible simulations that leverage modern AI capabilities for interactive experiences.`;
 
     const userPrompt = `Create a comprehensive simulation specification for: "${prompt}"
 
-Please analyze this request and generate:
+Analyze this request and generate:
 1. A detailed simulation design with all required components
 2. Appropriate AI Elements components that would be useful for implementation
 3. Implementation recommendations and next steps
 
-Make sure to consider the interactive, AI-powered nature of modern simulations and how AI Elements can enhance the user experience.`;
+Make intelligent assumptions to fill any gaps in the user's request. Be comprehensive and proactive in your design approach. Consider the interactive, AI-powered nature of modern simulations and how AI Elements can enhance the user experience.`;
 
     try {
-      // Test with a simple schema first
-      const testSchema = z.object({
-        name: z.string(),
-        description: z.string(),
+      const result = await withRetry(async () => {
+        return await generateObject({
+          model: this.getModel(),
+          schema: CompleteSimulationSchema, // Use full schema instead of test schema
+          system: systemPrompt,
+          prompt: userPrompt,
+          temperature: AI_CONFIG.google.temperature,
+          topP: AI_CONFIG.google.topP,
+        });
       });
 
-      console.log("🔍 Testing simple schema first:", {
-        testSchemaType: typeof testSchema,
-        testSchemaParse: typeof testSchema.parse,
-        completeSchemaType: typeof CompleteSimulationSchema,
-        completeSchemaParse: typeof CompleteSimulationSchema.parse,
-      });
+      const completeSimulation = validateAIResponse(
+        result,
+        "CompleteSimulation",
+      );
 
-      const result = await generateObject({
-        model: this.getModel(),
-        schema: testSchema,
-        system: systemPrompt,
-        prompt: userPrompt,
+      console.log("✅ Simulation generated successfully:", {
+        simulationName: completeSimulation.simulation?.name,
+        simulationType: completeSimulation.simulation?.type,
+        objectivesCount: completeSimulation.simulation?.objectives?.length || 0,
+        aiElementsCount: completeSimulation.aiElements?.components?.length || 0,
       });
-
-      console.log("✅ Simple schema test successful:", {
-        hasObject: !!result.object,
-        objectKeys: result.object ? Object.keys(result.object) : [],
-      });
-
-      // Convert simple result to CompleteSimulation format
-      const simpleResult = result.object;
-      const completeSimulation: CompleteSimulation = {
-        simulation: {
-          name: simpleResult.name,
-          description: simpleResult.description,
-          type: "entertainment",
-          environment: {
-            setting: "Generic environment",
-            atmosphere: "Neutral",
-            scale: "medium",
-          },
-          characters: [],
-          mechanics: {
-            interaction: ["click", "type"],
-            progression: "linear",
-            feedback: ["visual", "text"],
-            difficulty: "beginner",
-          },
-          objectives: [
-            {
-              title: "Complete the simulation",
-              description: "Experience the basic simulation",
-              type: "primary",
-              difficulty: "easy",
-            },
-          ],
-          presentation: {
-            visualStyle: "modern",
-            audioElements: [],
-            uiElements: ["buttons", "text"],
-          },
-          educational: {
-            learningOutcomes: ["Basic understanding"],
-            targetAudience: "General audience",
-            prerequisites: [],
-            assessment: "Completion-based",
-          },
-          implementation: {
-            platform: ["web"],
-            technology: ["React", "Next.js"],
-            estimatedDuration: "5-10 minutes",
-            multiplayer: false,
-          },
-          features: [],
-          constraints: [],
-          tags: ["basic", "demo"],
-          complexity: "simple",
-        },
-        aiElements: {
-          components: [],
-          interactions: [],
-        },
-        implementation: {
-          priority: "medium",
-          estimatedEffort: "2-4 weeks",
-          recommendations: [
-            "Start with basic UI components",
-            "Implement core simulation mechanics",
-            "Add AI Elements integration",
-          ],
-        },
-      };
 
       return completeSimulation;
     } catch (error) {
-      console.error("Error generating simulation:", error);
-
-      // Check if it's a network connectivity issue
-      if (
-        error instanceof Error &&
-        (error.message.includes("ENOTFOUND") ||
-          error.message.includes("getaddrinfo") ||
-          error.message.includes("Cannot connect to API"))
-      ) {
-        console.log(
-          "🌐 Network connectivity issue detected, throwing specific error",
-        );
-        throw new Error("Network connectivity issue - cannot reach AI service");
-      }
-
-      throw new Error("Failed to generate simulation specification");
+      console.error("❌ Error generating simulation:", error);
+      handleAIError(error);
     }
   }
 

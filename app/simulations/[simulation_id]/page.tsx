@@ -34,6 +34,8 @@ import {
   createInitialMessages,
   createUserMessage,
 } from "@/lib/simulation";
+import { createAssistantMessage } from "@/lib/simulation";
+import type { HologramRow } from "@/lib/hologram-schema";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, Info, GitFork } from "lucide-react";
 import { SimulationCard } from "@/components/simulation-card";
@@ -56,6 +58,24 @@ export default function SimulationPage({
   const [showSimulationDetails, setShowSimulationDetails] = useState(false);
   const [isForking, setIsForking] = useState(false);
   const [isUpdatingState, setIsUpdatingState] = useState(false);
+  const [holograms, setHolograms] = useState<HologramRow[]>([]);
+  const [isProcessingHologram, setIsProcessingHologram] = useState(false);
+
+  // Load holograms
+  const loadHolograms = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `/api/simulations/${resolvedParams.simulation_id}/holograms`,
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setHolograms(data.holograms || []);
+        console.log("🎭 Holograms loaded:", data.holograms?.length || 0);
+      }
+    } catch (error) {
+      console.error("Error loading holograms:", error);
+    }
+  }, [resolvedParams.simulation_id]);
 
   // Load simulation data from API
   useEffect(() => {
@@ -107,7 +127,8 @@ export default function SimulationPage({
     };
 
     loadSimulation();
-  }, [resolvedParams.simulation_id]);
+    loadHolograms();
+  }, [resolvedParams.simulation_id, loadHolograms]);
 
   // Update simulation state function
   const handleUpdateSimulationState = useCallback(
@@ -172,49 +193,101 @@ export default function SimulationPage({
       try {
         const messageContent = message.text || "Sent files";
 
-        // Check if this is an update command
-        const isUpdate = isUpdateCommand(messageContent);
-        console.log("🔍 Update command detection:", {
+        // Check if this is a hologram command
+        const { HologramGenerator } = await import("@/lib/ai-hologram-service");
+        const isHologramCommand =
+          HologramGenerator.isHologramCommand(messageContent);
+        console.log("🎭 Hologram command detection:", {
           messageContent,
-          isUpdate,
-          hasSimulationObject: !!simulationObject,
-          willUpdate: isUpdate && simulationObject,
+          isHologramCommand,
         });
 
-        if (isUpdate && simulationObject) {
-          // Handle as state update
-          console.log("🔄 Triggering state update...");
-          await handleUpdateSimulationState(messageContent);
-          setStatus(undefined);
-        } else {
-          // Handle as regular message
-          const response = await fetch(
-            `/api/simulations/${resolvedParams.simulation_id}`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
+        if (isHologramCommand) {
+          // Handle as hologram command
+          console.log("🎭 Processing hologram command...");
+          setIsProcessingHologram(true);
+
+          try {
+            const response = await fetch(
+              `/api/simulations/${resolvedParams.simulation_id}/holograms`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  prompt: messageContent,
+                }),
               },
-              body: JSON.stringify({
-                content: messageContent,
-                from: "user",
-                name: "You",
-                avatar: "https://github.com/vercel.png",
-              }),
-            },
-          );
+            );
 
-          if (response.ok) {
-            const { assistantMessage } = await response.json();
-            setStatus("streaming");
-
-            // Simulate streaming delay
-            setTimeout(() => {
+            if (response.ok) {
+              const { message: assistantMessage, holograms: updatedHolograms } =
+                await response.json();
+              setHolograms(updatedHolograms);
               setMessages((prev) => [...prev, assistantMessage]);
-              setStatus(undefined);
-            }, 2000);
+              console.log("✅ Hologram command processed:", {
+                hologramsCount: updatedHolograms.length,
+                command: assistantMessage.content,
+              });
+            } else {
+              throw new Error("Failed to process hologram command");
+            }
+          } catch (error) {
+            console.error("Error processing hologram command:", error);
+            const errorMessage = createAssistantMessage(
+              "Sorry, I couldn't process that hologram command. Please try again.",
+            );
+            setMessages((prev) => [...prev, errorMessage]);
+          } finally {
+            setIsProcessingHologram(false);
+            setStatus(undefined);
+          }
+        } else {
+          // Check if this is an update command
+          const isUpdate = isUpdateCommand(messageContent);
+          console.log("🔍 Update command detection:", {
+            messageContent,
+            isUpdate,
+            hasSimulationObject: !!simulationObject,
+            willUpdate: isUpdate && simulationObject,
+          });
+
+          if (isUpdate && simulationObject) {
+            // Handle as state update
+            console.log("🔄 Triggering state update...");
+            await handleUpdateSimulationState(messageContent);
+            setStatus(undefined);
           } else {
-            throw new Error("Failed to send message");
+            // Handle as regular message
+            const response = await fetch(
+              `/api/simulations/${resolvedParams.simulation_id}`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  content: messageContent,
+                  from: "user",
+                  name: "You",
+                  avatar: "https://github.com/vercel.png",
+                }),
+              },
+            );
+
+            if (response.ok) {
+              const { assistantMessage } = await response.json();
+              setStatus("streaming");
+
+              // Simulate streaming delay
+              setTimeout(() => {
+                setMessages((prev) => [...prev, assistantMessage]);
+                setStatus(undefined);
+              }, 2000);
+            } else {
+              throw new Error("Failed to send message");
+            }
           }
         }
       } catch (error) {
@@ -356,6 +429,17 @@ export default function SimulationPage({
                 {isUpdatingState && (
                   <span className="ml-2 text-primary">• Updating...</span>
                 )}
+                {isProcessingHologram && (
+                  <span className="ml-2 text-primary">
+                    • Managing Holograms...
+                  </span>
+                )}
+                {holograms.length > 0 && (
+                  <span className="ml-2 text-primary">
+                    • {holograms.length} Hologram
+                    {holograms.length !== 1 ? "s" : ""}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -414,7 +498,7 @@ export default function SimulationPage({
                 <PromptInputAttachments>
                   {(attachment) => <PromptInputAttachment data={attachment} />}
                 </PromptInputAttachments>
-                <PromptInputTextarea placeholder="Describe your simulation idea..." />
+                <PromptInputTextarea placeholder="Describe your simulation idea or manage holograms (e.g., 'create hologram Captain Nova', 'update hologram wardrobe', 'remove hologram Dr. Smith')..." />
                 <PromptInputFooter>
                   <PromptInputTools>
                     <PromptInputActionMenu>
@@ -443,6 +527,77 @@ export default function SimulationPage({
                 simulation={simulationObject}
                 aiElements={aiElementsUsage || undefined}
               />
+
+              {/* Holograms Section */}
+              {holograms.length > 0 && (
+                <div className="mt-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Info className="w-5 h-5" />
+                    <h3 className="text-lg font-semibold">
+                      Holograms ({holograms.length})
+                    </h3>
+                  </div>
+                  <div className="space-y-3">
+                    {holograms.map((hologram) => (
+                      <div
+                        key={hologram.id}
+                        className="border rounded-lg p-4 bg-card"
+                      >
+                        <h4 className="font-semibold text-lg mb-2">
+                          {hologram.name}
+                        </h4>
+
+                        {hologram.descriptions.length > 0 && (
+                          <div className="mb-3">
+                            <h5 className="font-medium text-sm text-muted-foreground mb-1">
+                              Description
+                            </h5>
+                            <ul className="text-sm space-y-1">
+                              {hologram.descriptions.map((desc, i) => (
+                                <li key={i} className="text-muted-foreground">
+                                  • {desc}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {hologram.acting_instructions.length > 0 && (
+                          <div className="mb-3">
+                            <h5 className="font-medium text-sm text-muted-foreground mb-1">
+                              Acting Instructions
+                            </h5>
+                            <ul className="text-sm space-y-1">
+                              {hologram.acting_instructions.map(
+                                (instruction, i) => (
+                                  <li key={i} className="text-muted-foreground">
+                                    • {instruction}
+                                  </li>
+                                ),
+                              )}
+                            </ul>
+                          </div>
+                        )}
+
+                        {hologram.wardrobe.length > 0 && (
+                          <div>
+                            <h5 className="font-medium text-sm text-muted-foreground mb-1">
+                              Wardrobe
+                            </h5>
+                            <ul className="text-sm space-y-1">
+                              {hologram.wardrobe.map((item, i) => (
+                                <li key={i} className="text-muted-foreground">
+                                  • {item}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
