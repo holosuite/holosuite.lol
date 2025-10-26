@@ -1,9 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { PromptSubmission } from "@/components/prompt-submission";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div
+      className="min-h-screen bg-background text-foreground page-transition"
+      data-page-content
+    >
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-sm bg-background/90 border-b border-border">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
@@ -32,20 +36,8 @@ export default function Home() {
             >
               The Future
             </a>
-            <a
-              href="/partnerships"
-              className="text-foreground hover:text-primary transition"
-            >
-              Partnerships
-            </a>
-            <a
-              href="/careers"
-              className="text-foreground hover:text-primary transition"
-            >
-              Careers
-            </a>
           </div>
-          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-full px-6">
+          <Button className="bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-lg text-primary-foreground font-medium rounded-full px-6 transition-all duration-200 ease-in-out">
             <Plus className="w-4 h-4 mr-2" />
             Book a call
           </Button>
@@ -67,7 +59,7 @@ export default function Home() {
                   transport you to new worlds and experiences.
                 </p>
               </div>
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-full px-8 py-6 text-lg">
+              <Button className="bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-lg text-primary-foreground font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
                 <Plus className="w-5 h-5 mr-2" />
                 Book a call
               </Button>
@@ -136,6 +128,13 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Prompt Submission Section */}
+      <section className="py-20 px-6 bg-gradient-to-b from-card to-background">
+        <div className="container mx-auto">
+          <PromptSubmission />
         </div>
       </section>
 
@@ -282,7 +281,7 @@ export default function Home() {
           </div>
 
           <div className="text-center mt-16">
-            <Button className="bg-[#D4B896] hover:bg-[#C9A870] text-[#3A3A2A] font-medium rounded-full px-8 py-6 text-lg">
+            <Button className="bg-[#D4B896] hover:bg-[#C9A870] hover:scale-105 hover:shadow-lg text-[#3A3A2A] font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
               <Plus className="w-5 h-5 mr-2" />
               Get Started
             </Button>
@@ -397,7 +396,7 @@ export default function Home() {
             <p className="text-5xl font-bold text-[#D4B896] mb-8">
               Content is king.
             </p>
-            <Button className="bg-[#D4B896] hover:bg-[#C9A870] text-[#3A3A2A] font-medium rounded-full px-8 py-6 text-lg">
+            <Button className="bg-[#D4B896] hover:bg-[#C9A870] hover:scale-105 hover:shadow-lg text-[#3A3A2A] font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
               <Plus className="w-5 h-5 mr-2" />
               Get started
             </Button>
@@ -415,7 +414,7 @@ export default function Home() {
               your company. If you run marketing at a 200+ person company, we
               have limited spots for design partners.
             </p>
-            <Button className="bg-[#D4B896] hover:bg-[#C9A870] text-[#3A3A2A] font-medium rounded-full px-8 py-6 text-lg">
+            <Button className="bg-[#D4B896] hover:bg-[#C9A870] hover:scale-105 hover:shadow-lg text-[#3A3A2A] font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
               <Plus className="w-5 h-5 mr-2" />
               Inquire within
             </Button>
@@ -486,7 +485,7 @@ export default function Home() {
               </a>
             </div>
 
-            <Button className="bg-[#D4B896] hover:bg-[#C9A870] text-[#3A3A2A] font-medium rounded-full px-8 py-6 text-lg">
+            <Button className="bg-[#D4B896] hover:bg-[#C9A870] hover:scale-105 hover:shadow-lg text-[#3A3A2A] font-medium rounded-full px-8 py-6 text-lg transition-all duration-200 ease-in-out">
               <Plus className="w-5 h-5 mr-2" />
               Get Started
             </Button>
