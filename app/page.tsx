@@ -39,15 +39,6 @@ export default function Home() {
       {/* Hero Section with Prompt */}
       <section className="pt-32 pb-20 px-6">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16">
-            <h1 className="text-6xl lg:text-7xl font-bold text-foreground leading-tight mb-6">
-              Create Immersive AI Simulations
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Powered by Google Gemini AI. Generate interactive simulations, AI characters, and story-driven experiences through natural language.
-            </p>
-          </div>
-
           {/* Simulation Generation Prompt */}
           <div className="mb-20">
             <PromptSubmission />
