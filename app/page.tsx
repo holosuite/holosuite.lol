@@ -39,18 +39,24 @@ export default function Home() {
       {/* Hero Section with Prompt */}
       <section className="pt-32 pb-20 px-6">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16">
-            <h1 className="text-6xl lg:text-7xl font-bold text-foreground leading-tight mb-6">
-              Create Immersive AI Simulations
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Powered by Google Gemini AI. Generate interactive simulations, AI characters, and story-driven experiences through natural language.
-            </p>
-          </div>
-
           {/* Simulation Generation Prompt */}
           <div className="mb-20">
             <PromptSubmission />
+          </div>
+        </div>
+      </section>
+
+      {/* Vision Section */}
+      <section className="py-20 px-6 bg-card/30">
+        <div className="container mx-auto max-w-4xl">
+          <div className="text-center space-y-6">
+            <p className="text-sm font-mono text-primary tracking-wider">THE NEXT GENERATION OF ENTERTAINMENT</p>
+            <h2 className="text-4xl lg:text-5xl font-bold text-foreground">
+              The software behind the Holodeck
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              Where are the all-in-one, commercialized holodeck-like experiences? The software problem is complex, but with cutting-edge generative AI, we're pushing boundaries. Holosuite Entertainment is building the infrastructure for developing and running holodeck programs—<span className="text-foreground font-semibold">Holodeck-as-a-Service</span>.
+            </p>
           </div>
         </div>
       </section>
@@ -184,16 +190,189 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Message Section */}
+      {/* Interactive Story Journey */}
+      <section className="py-32 px-6 bg-card">
+        <div className="container mx-auto max-w-6xl">
+          <div className="mb-16 flex justify-center">
+            <div className="inline-block">
+              <h2 className="text-5xl font-bold text-foreground mb-2">
+                Your interactive journey
+              </h2>
+              <div className="h-1 bg-primary rounded-full"></div>
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {/* Choose Your Story */}
+            <div className="bg-background/50 rounded-2xl p-8 border border-border space-y-4">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-2xl">📚</span>
+              </div>
+              <h3 className="text-xl font-bold text-foreground">Choose your story</h3>
+              <p className="text-muted-foreground">
+                Select from our curated library of interactive holographic programs or create your own custom simulation from scratch.
+              </p>
+            </div>
+
+            {/* Live the Experience */}
+            <div className="bg-background/50 rounded-2xl p-8 border border-border space-y-4">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-2xl">🎮</span>
+              </div>
+              <h3 className="text-xl font-bold text-foreground">Live the experience</h3>
+              <p className="text-muted-foreground">
+                Step into your character's shoes. Each turn, choose from AI-suggested actions or craft your own path through the narrative.
+              </p>
+            </div>
+
+            {/* Keep the Memories */}
+            <div className="bg-background/50 rounded-2xl p-8 border border-border space-y-4">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-2xl">🎬</span>
+              </div>
+              <h3 className="text-xl font-bold text-foreground">Keep the memories</h3>
+              <p className="text-muted-foreground">
+                Your journey becomes a cinematic keepsake. AI generates a recap video from your adventure's highlights using Veo 3.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
       <section className="py-32 px-6 bg-gradient-to-b from-card to-background">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="text-5xl lg:text-6xl font-bold text-foreground mb-8">
-              Built for creators and storytellers
+          <div className="text-center mb-16">
+            <p className="text-sm font-mono text-primary tracking-wider mb-4">CORE CAPABILITIES</p>
+            <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6">
+              Holodeck infrastructure, powered by AI
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Whether you're creating interactive fiction, educational simulations, or immersive entertainment experiences, Holosuite brings your ideas to life.
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Combining vast databases, intelligent control systems, and generative AI to create the next generation of immersive entertainment.
             </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Vast Simulation Database */}
+            <div className="bg-card/50 rounded-2xl p-8 border border-border backdrop-blur-sm">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-xl">🗄️</span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-foreground">Vast simulation database</h3>
+                  <p className="text-muted-foreground">
+                    Access a Netflix-like library of holographic programs. Project detailed historical events, fictional worlds, and custom scenarios with incredible accuracy.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Perceptual AI Agents */}
+            <div className="bg-card/50 rounded-2xl p-8 border border-border backdrop-blur-sm">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-xl">👁️</span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-foreground">Perceptual AI agents</h3>
+                  <p className="text-muted-foreground">
+                    Holographic characters with unique personalities maintain immersion, responding naturally without breaking the fourth wall.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Natural Control Systems */}
+            <div className="bg-card/50 rounded-2xl p-8 border border-border backdrop-blur-sm">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-xl">🎙️</span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-foreground">Natural control systems</h3>
+                  <p className="text-muted-foreground">
+                    Control programs via voice commands, intuitive interfaces, or custom prompts. "Computer, end program" when you're ready to exit.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Dynamic Content Generation */}
+            <div className="bg-card/50 rounded-2xl p-8 border border-border backdrop-blur-sm">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-xl">✨</span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-foreground">Dynamic content generation</h3>
+                  <p className="text-muted-foreground">
+                    Each story turn generates contextual descriptions and images. AI maintains visual continuity throughout your adventure.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Message Section */}
+      <section className="py-32 px-6 bg-background">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center space-y-8">
+            <div className="space-y-4">
+              <p className="text-sm font-mono text-primary tracking-wider">THE FUTURE OF ENTERTAINMENT</p>
+              <h2 className="text-5xl lg:text-6xl font-bold text-foreground">
+                Built for creators and storytellers
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                Whether you're creating interactive fiction, educational simulations, or immersive entertainment experiences, Holosuite provides the infrastructure to bring your vision to life.
+              </p>
+            </div>
+            <div className="pt-8">
+              <blockquote className="text-lg italic text-muted-foreground max-w-2xl mx-auto border-l-4 border-primary pl-6">
+                "I have no interest in altering someone's perception of who they are and what the world is… other than that they might understand that it's also funny."
+                <footer className="text-sm font-medium text-foreground mt-2">— Brent Spiner</footer>
+              </blockquote>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-32 px-6 bg-gradient-to-b from-background to-card">
+        <div className="container mx-auto max-w-4xl">
+          <div className="bg-card/50 rounded-3xl p-12 border border-border backdrop-blur-sm text-center space-y-8">
+            <div className="space-y-4">
+              <h2 className="text-4xl lg:text-5xl font-bold text-foreground">
+                Ready to explore new worlds?
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Start creating your own holographic simulations today. The only limit is your imagination.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a
+                href="#"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-full px-8 py-4 text-lg transition-all hover:scale-105"
+              >
+                Create Simulation
+              </a>
+              <a
+                href="/simulations"
+                className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-medium rounded-full px-8 py-4 text-lg transition-all hover:scale-105"
+              >
+                Browse Library
+              </a>
+            </div>
+            <div className="pt-8 border-t border-border">
+              <p className="text-2xl font-mono text-primary tracking-wide">
+                🖖 Live long and prosper
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">
+                "Computer, end program"
+              </p>
+            </div>
           </div>
         </div>
       </section>
