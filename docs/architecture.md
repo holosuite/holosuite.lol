@@ -24,6 +24,7 @@ Holosuite is a Next.js-based interactive simulation platform that combines AI-po
 ### 1. Frontend Architecture
 
 #### Framework & Technologies
+
 - **Next.js 14+**: App Router with Server-Side Rendering
 - **React 18**: Client-side components with hooks
 - **TypeScript**: Type-safe development
@@ -31,12 +32,14 @@ Holosuite is a Next.js-based interactive simulation platform that combines AI-po
 - **Lucide React**: Icon system
 
 #### Key Frontend Patterns
+
 - **Server Components**: For initial data loading and SEO
 - **Client Components**: For interactive features (`"use client"`)
 - **Custom Hooks**: State management and API interactions
 - **Component Composition**: Reusable UI components
 
 #### Directory Structure
+
 ```
 app/
 ├── page.tsx                    # Landing page
@@ -59,12 +62,14 @@ components/
 ### 2. Backend Architecture
 
 #### API Design
+
 - **RESTful APIs**: Following REST conventions
 - **Type Safety**: TypeScript interfaces for all data structures
 - **Error Handling**: Consistent error responses
 - **Validation**: Request/response validation
 
 #### API Route Structure
+
 ```
 /api/
 ├── simulations/
@@ -88,11 +93,13 @@ components/
 ### 3. Database Architecture
 
 #### Database Technology
+
 - **Neon Serverless PostgreSQL**: Primary database
 - **Vercel Postgres SDK**: Database connection and queries
 - **SQL**: Raw SQL queries with template literals
 
 #### Schema Design
+
 ```sql
 -- Core entities
 simulations (id, simulation_object, status, created_at, updated_at)
@@ -103,6 +110,7 @@ videos (id, run_id, video_url, status, created_at, updated_at)
 ```
 
 #### Data Models
+
 - **SimulationModel**: Core simulation management
 - **RunModel**: Individual simulation runs
 - **TurnModel**: Story progression turns
@@ -112,6 +120,7 @@ videos (id, run_id, video_url, status, created_at, updated_at)
 ### 4. AI Services Architecture
 
 #### AI Service Layer
+
 ```typescript
 // Service pattern with singleton instances
 class AIService {
@@ -121,6 +130,7 @@ class AIService {
 ```
 
 #### AI Services
+
 1. **SimulationService** (`lib/ai-simulation-service.ts`)
    - Generates simulation content using AI SDK
    - Uses `generateObject()` with Zod schemas
@@ -137,6 +147,7 @@ class AIService {
    - Manages video generation lifecycle
 
 #### AI Integration Patterns
+
 - **Prompt Engineering**: Structured prompts for consistent output
 - **Schema Validation**: Zod schemas for type safety
 - **Error Handling**: Graceful fallbacks for AI failures
@@ -146,28 +157,31 @@ class AIService {
 ### 5. External Service Integration
 
 #### Google GenAI Services
+
 ```typescript
 // Image Generation
 this.ai.models.generateImages({
   model: "imagen-4.0-generate-001",
   prompt: imagePrompt,
-  config: { numberOfImages: 1 }
+  config: { numberOfImages: 1 },
 });
 
 // Video Generation
 this.ai.models.generateVideos({
   model: "veo-3.1-generate-preview",
   prompt: videoPrompt,
-  imageReferences: imageRefs
+  imageReferences: imageRefs,
 });
 ```
 
 #### Vercel Blob Storage
+
 - **File Storage**: Persistent video and image storage
 - **CDN Integration**: Fast global content delivery
 - **Access Control**: Public/private file access
 
 #### Environment Configuration
+
 ```env
 DATABASE_URL=postgresql://...
 GOOGLE_GENAI_API_KEY=...
@@ -177,6 +191,7 @@ NEXT_PUBLIC_APP_URL=...
 ## Data Flow Architecture
 
 ### 1. Simulation Creation Flow
+
 ```
 User Input → AI Simulation Service → Database → Frontend Display
      ↓
@@ -184,6 +199,7 @@ Generate Initial Content → Create Run → Generate First Turn
 ```
 
 ### 2. Turn Progression Flow
+
 ```
 User Action → Turn API → AI Response → Image Generation → Database Update
      ↓
@@ -191,6 +207,7 @@ Update UI → Show New Content → Generate Next Options
 ```
 
 ### 3. Video Generation Flow
+
 ```
 Completed Run → Extract Turns → Generate Video Prompt → Veo API
      ↓
@@ -200,12 +217,14 @@ Poll Status → Download Video → Store in Blob → Update Database
 ## Security Architecture
 
 ### Authentication & Authorization
+
 - **No Authentication**: Currently public access
 - **API Rate Limiting**: Built into AI services
 - **Input Validation**: Zod schema validation
 - **SQL Injection Prevention**: Parameterized queries
 
 ### Data Protection
+
 - **Environment Variables**: Sensitive data in env vars
 - **API Key Management**: Secure key storage
 - **Database Security**: Connection string protection
@@ -213,6 +232,7 @@ Poll Status → Download Video → Store in Blob → Update Database
 ## Performance Architecture
 
 ### Optimization Strategies
+
 1. **Server-Side Rendering**: Initial page loads
 2. **Client-Side Hydration**: Interactive features
 3. **Image Optimization**: Next.js Image component
@@ -220,6 +240,7 @@ Poll Status → Download Video → Store in Blob → Update Database
 5. **Caching**: API response caching
 
 ### Scalability Considerations
+
 - **Serverless Architecture**: Auto-scaling with Vercel
 - **Database Connection Pooling**: Neon serverless
 - **CDN Integration**: Vercel Blob for static assets
@@ -228,18 +249,21 @@ Poll Status → Download Video → Store in Blob → Update Database
 ## Development Architecture
 
 ### Code Organization
+
 - **Feature-Based Structure**: Components grouped by feature
 - **Shared Utilities**: Common functions in `/lib`
 - **Type Definitions**: Centralized TypeScript types
 - **API Layer**: Separated API logic from UI
 
 ### Development Patterns
+
 - **Custom Hooks**: Reusable state logic
 - **Component Composition**: Flexible UI building
 - **Error Boundaries**: Graceful error handling
 - **Loading States**: User feedback during operations
 
 ### Testing Strategy
+
 - **Manual Testing**: Browser-based testing
 - **API Testing**: Direct API endpoint testing
 - **Integration Testing**: End-to-end workflows
@@ -247,17 +271,20 @@ Poll Status → Download Video → Store in Blob → Update Database
 ## Deployment Architecture
 
 ### Hosting Platform
+
 - **Vercel**: Primary hosting platform
 - **Edge Functions**: Serverless API routes
 - **Static Assets**: CDN-delivered content
 - **Environment Management**: Vercel environment variables
 
 ### Database Hosting
+
 - **Neon Serverless**: PostgreSQL hosting
 - **Connection Pooling**: Automatic scaling
 - **Backup Strategy**: Automated backups
 
 ### File Storage
+
 - **Vercel Blob**: File storage and CDN
 - **Image Optimization**: Automatic image processing
 - **Video Streaming**: Optimized video delivery
@@ -265,11 +292,13 @@ Poll Status → Download Video → Store in Blob → Update Database
 ## Monitoring & Observability
 
 ### Logging Strategy
+
 - **Console Logging**: Development debugging
 - **Error Tracking**: Client-side error capture
 - **API Monitoring**: Request/response logging
 
 ### Performance Monitoring
+
 - **Vercel Analytics**: Built-in performance metrics
 - **Core Web Vitals**: User experience metrics
 - **API Response Times**: Backend performance tracking
@@ -277,18 +306,21 @@ Poll Status → Download Video → Store in Blob → Update Database
 ## Future Architecture Considerations
 
 ### Scalability Improvements
+
 1. **Authentication System**: User management
 2. **Caching Layer**: Redis for session management
 3. **Message Queue**: Background job processing
 4. **Microservices**: Service decomposition
 
 ### Feature Enhancements
+
 1. **Real-time Updates**: WebSocket integration
 2. **Collaborative Features**: Multi-user simulations
 3. **Advanced AI**: Custom model fine-tuning
 4. **Analytics Dashboard**: Usage insights
 
 ### Technical Debt
+
 1. **Error Handling**: Comprehensive error boundaries
 2. **Testing Coverage**: Automated test suite
 3. **Documentation**: API documentation
@@ -297,25 +329,30 @@ Poll Status → Download Video → Store in Blob → Update Database
 ## Key Architectural Decisions
 
 ### 1. Next.js App Router
+
 **Decision**: Use Next.js 14+ App Router over Pages Router
 **Rationale**: Better performance, improved developer experience, built-in optimizations
 
 ### 2. Serverless Architecture
+
 **Decision**: Deploy on Vercel with serverless functions
 **Rationale**: Auto-scaling, cost-effective, zero maintenance
 
 ### 3. PostgreSQL with Neon
+
 **Decision**: Use PostgreSQL over NoSQL databases
 **Rationale**: ACID compliance, complex queries, relational data structure
 
 ### 4. Google GenAI Integration
+
 **Decision**: Use Google's AI services over OpenAI
 **Rationale**: Better image/video generation, competitive pricing, comprehensive API
 
 ### 5. TypeScript Throughout
+
 **Decision**: Use TypeScript for all code
 **Rationale**: Type safety, better developer experience, reduced runtime errors
 
 ---
 
-*This architecture documentation should be updated as the system evolves and new features are added.*
+_This architecture documentation should be updated as the system evolves and new features are added._

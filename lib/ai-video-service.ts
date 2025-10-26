@@ -129,7 +129,8 @@ export class VideoGenerationService {
 
       if (updatedOperation.done) {
         if (updatedOperation.response?.generatedVideos?.[0]?.video) {
-          const videoUrl = updatedOperation.response.generatedVideos[0].video.uri;
+          const videoUrl =
+            updatedOperation.response.generatedVideos[0].video.uri;
           console.log("✅ Video generation completed:", { videoUrl });
 
           return {
@@ -177,13 +178,13 @@ export class VideoGenerationService {
       .slice(0, 8) // Limit to 8 key scenes for video length
       .map((turn, index) => {
         let scene = `Scene ${index + 1}: ${turn.ai_response.substring(0, 200)}...`;
-        
+
         // Add enhanced image prompt if available for visual inspiration
         if (turn.image_prompt) {
           scene += ` Visual inspiration: "${turn.image_prompt}". `;
           scene += `Use this visual style to maintain artistic consistency and create smooth transitions. `;
         }
-        
+
         return scene;
       });
 
@@ -220,9 +221,9 @@ export class VideoGenerationService {
       });
 
       // Read the file and return as buffer
-      const fs = await import('fs');
+      const fs = await import("fs");
       const buffer = fs.readFileSync(tempPath);
-      
+
       // Clean up temporary file
       fs.unlinkSync(tempPath);
 
@@ -257,9 +258,9 @@ export class VideoGenerationService {
       });
 
       // Read the file
-      const fs = await import('fs');
+      const fs = await import("fs");
       const videoBuffer = fs.readFileSync(tempPath);
-      
+
       // Clean up temporary file
       fs.unlinkSync(tempPath);
 
