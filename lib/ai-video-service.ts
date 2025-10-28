@@ -35,7 +35,9 @@ export class VideoGenerationService {
   private ai: GoogleGenAI;
 
   private constructor() {
-    this.ai = new GoogleGenAI({});
+    this.ai = new GoogleGenAI({
+      apiKey: AI_CONFIG.google.apiKey,
+    });
   }
 
   static getInstance(): VideoGenerationService {

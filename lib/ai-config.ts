@@ -18,15 +18,13 @@ export const AI_CONFIG = {
   fakeGenerators: {
     // Auto-detect: use fake generators when API key is missing
     // Manual override: USE_FAKE_IMAGE_GENERATOR=true/false
-    useFakeImageGenerator: true,
-    // process.env.USE_FAKE_IMAGE_GENERATOR
-    //   ? process.env.USE_FAKE_IMAGE_GENERATOR === "true"
-    //   : !process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+    useFakeImageGenerator: process.env.USE_FAKE_IMAGE_GENERATOR
+      ? process.env.USE_FAKE_IMAGE_GENERATOR === "true"
+      : !process.env.GOOGLE_GENERATIVE_AI_API_KEY,
     // Manual override: USE_FAKE_VIDEO_GENERATOR=true/false
-    useFakeVideoGenerator: true,
-    //  process.env.USE_FAKE_VIDEO_GENERATOR
-    //   ? process.env.USE_FAKE_VIDEO_GENERATOR === "true"
-    //   : !process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+    useFakeVideoGenerator: process.env.USE_FAKE_VIDEO_GENERATOR
+      ? process.env.USE_FAKE_VIDEO_GENERATOR === "true"
+      : !process.env.GOOGLE_GENERATIVE_AI_API_KEY,
     // Fake generator behavior settings
     imageDelayMs: 500, // Simulated delay for image generation
     videoDelayMs: 1000, // Simulated delay for video generation
