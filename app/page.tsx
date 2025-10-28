@@ -183,8 +183,7 @@ export default function Home() {
                 </h3>
                 <p className="text-muted-foreground text-base">
                   Google Gemini AI generates comprehensive simulation
-                  specifications, character holograms, and interactive story
-                  elements.
+                  specifications, AI characters, and interactive story elements.
                 </p>
               </div>
             </div>
@@ -207,7 +206,7 @@ export default function Home() {
                   Interact with AI characters
                 </h3>
                 <p className="text-muted-foreground text-base">
-                  AI-generated holograms bring your simulation to life with
+                  AI-generated characters bring your simulation to life with
                   responsive, contextual interactions and unique personalities.
                 </p>
               </div>
@@ -262,7 +261,7 @@ export default function Home() {
                 Choose your story
               </h3>
               <p className="text-muted-foreground">
-                Select from our curated library of interactive holographic
+                Select from our curated library of interactive simulation
                 programs or create your own custom simulation from scratch.
               </p>
             </div>
@@ -328,7 +327,7 @@ export default function Home() {
                     Vast simulation database
                   </h3>
                   <p className="text-muted-foreground">
-                    Access a Netflix-like library of holographic programs.
+                    Access a Netflix-like library of simulation programs.
                     Project detailed historical events, fictional worlds, and
                     custom scenarios with incredible accuracy.
                   </p>
@@ -347,9 +346,8 @@ export default function Home() {
                     Perceptual AI agents
                   </h3>
                   <p className="text-muted-foreground">
-                    Holographic characters with unique personalities maintain
-                    immersion, responding naturally without breaking the fourth
-                    wall.
+                    AI characters with unique personalities maintain immersion,
+                    responding naturally without breaking the fourth wall.
                   </p>
                 </div>
               </div>
@@ -436,7 +434,7 @@ export default function Home() {
                 Ready to explore new worlds?
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Start creating your own holographic simulations today. The only
+                Start creating your own interactive simulations today. The only
                 limit is your imagination.
               </p>
             </div>

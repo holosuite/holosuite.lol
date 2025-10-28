@@ -4,7 +4,7 @@ A platform for creating and sharing immersive simulation experiences powered by 
 
 ## Technical Overview
 
-Holosuite.lol is a Next.js-based web application that enables users to create interactive simulations through natural language prompts. The platform leverages Google's Gemini AI model to generate comprehensive simulation specifications, character holograms, and dynamic story experiences. Users can create simulations, interact with AI-generated characters, and experience immersive story-driven adventures.
+Holosuite.lol is a Next.js-based web application that enables users to create interactive simulations through natural language prompts. The platform leverages Google's Gemini AI model to generate comprehensive simulation specifications and dynamic story experiences. Users can create simulations and experience immersive story-driven adventures.
 
 ## Technology Stack
 
@@ -30,7 +30,7 @@ Holosuite.lol is a Next.js-based web application that enables users to create in
 ### Database
 
 - **PostgreSQL** (via Neon) - Primary data storage
-- **Tables**: simulations, messages, holograms, runs, turns, videos
+- **Tables**: simulations, messages, runs, turns, videos
 - **Features**: Full-text search, relational data, JSON storage
 
 ### Development Tools
@@ -67,10 +67,6 @@ Redirect to Simulation Page
 ```
 Story Simulation Selection
     ↓
-Hologram Generation (AI Service)
-    ↓
-Character Creation & Storage
-    ↓
 Run Initialization
     ↓
 Turn-based Interaction Loop:
@@ -88,7 +84,6 @@ Video Generation (Optional)
 ```
 simulations (Core simulation data)
     ├── messages (Chat history)
-    ├── holograms (AI characters)
     └── runs (Story sessions)
         ├── turns (Individual interactions)
         └── videos (Generated highlights)
@@ -97,7 +92,6 @@ simulations (Core simulation data)
 ### 4. AI Integration Points
 
 - **Simulation Generation**: Natural language → Structured simulation specs
-- **Hologram Creation**: Character descriptions → AI personalities
 - **Story Responses**: User actions → Contextual AI responses
 - **Image Generation**: Scene descriptions → Visual content
 - **Video Generation**: Story highlights → Video summaries
@@ -106,7 +100,6 @@ simulations (Core simulation data)
 
 - `GET/POST /api/simulations` - List/create simulations
 - `GET/POST/PATCH /api/simulations/[id]` - Manage individual simulations
-- `POST /api/simulations/[id]/holograms` - Generate AI characters
 - `POST /api/simulations/[id]/runs` - Start story sessions
 - `POST /api/simulations/[id]/runs/[run_id]/turns` - Process story turns
 - `GET/POST /api/videos` - Handle video generation

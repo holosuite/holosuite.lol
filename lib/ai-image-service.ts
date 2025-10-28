@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { put } from "@vercel/blob";
+import { AI_CONFIG } from "./ai-config";
 
 // Image generation result interface
 export interface ImageGenerationResult {
@@ -131,9 +132,15 @@ export class ImageGenerationService {
 
   /**
    * Generate image via Google GenAI API using Imagen 4.0
-   * This uses the actual Google GenAI image generation API
+   * This uses the actual Google GenAI image generation API or fake generator
    */
   private async generateImageViaAPI(prompt: string): Promise<string> {
+    // Check if we should use fake image generator
+    if (AI_CONFIG.fakeGenerators.useFakeImageGenerator) {
+      console.log("🎭 Using fake image generator for prompt:", prompt);
+      return this.generateFakeImage(prompt);
+    }
+
     try {
       console.log("🔄 Calling Google GenAI API with prompt:", prompt);
 
@@ -159,13 +166,167 @@ export class ImageGenerationService {
     } catch (error) {
       console.error("❌ Error calling Google GenAI API:", error);
 
-      // Fallback to placeholder if API fails
-      console.log("🔄 Falling back to placeholder image");
+      // Fallback to fake image if API fails
+      console.log("🔄 Falling back to fake image generator");
+      return this.generateFakeImage(prompt);
+    }
+  }
+
+  /**
+   * Generate a fake image using SVG for development/testing
+   * Creates a deterministic placeholder image with scene information
+   */
+  private async generateFakeImage(prompt: string): Promise<string> {
+    try {
+      // Add simulated delay for realism
+      await new Promise((resolve) =>
+        setTimeout(resolve, AI_CONFIG.fakeGenerators.imageDelayMs),
+      );
+
+      // Create a deterministic color scheme based on prompt hash
+      const promptHash = this.simpleHash(prompt);
+      const colors = this.getColorScheme(promptHash);
+
+      // Truncate prompt for display (max 100 chars)
+      const displayPrompt =
+        prompt.length > 100 ? prompt.substring(0, 100) + "..." : prompt;
+
+      // Generate timestamp
+      const timestamp = new Date().toLocaleTimeString();
+
+      // Create SVG image with scene information
+      const svg = `
+        <svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:${colors.primary};stop-opacity:1" />
+              <stop offset="100%" style="stop-color:${colors.secondary};stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <rect width="1024" height="1024" fill="url(#bg)" />
+          <rect x="50" y="50" width="924" height="924" fill="none" stroke="${colors.accent}" stroke-width="4" rx="20" />
+          
+          <!-- Title -->
+          <text x="512" y="200" font-family="Arial, sans-serif" font-size="48" font-weight="bold" 
+                text-anchor="middle" fill="${colors.text}" stroke="${colors.accent}" stroke-width="2">
+            FAKE IMAGE GENERATOR
+          </text>
+          
+          <!-- Scene Description -->
+          <text x="512" y="300" font-family="Arial, sans-serif" font-size="24" 
+                text-anchor="middle" fill="${colors.text}" stroke="${colors.accent}" stroke-width="1">
+            Scene: ${this.escapeXml(displayPrompt)}
+          </text>
+          
+          <!-- Decorative elements -->
+          <circle cx="200" cy="400" r="80" fill="${colors.accent}" opacity="0.3" />
+          <circle cx="824" cy="600" r="60" fill="${colors.accent}" opacity="0.3" />
+          <rect x="300" y="500" width="200" height="100" fill="${colors.accent}" opacity="0.2" rx="10" />
+          
+          <!-- Timestamp -->
+          <text x="512" y="800" font-family="Arial, sans-serif" font-size="20" 
+                text-anchor="middle" fill="${colors.text}" opacity="0.7">
+            Generated: ${timestamp}
+          </text>
+          
+          <!-- Hash indicator -->
+          <text x="512" y="850" font-family="Arial, sans-serif" font-size="16" 
+                text-anchor="middle" fill="${colors.text}" opacity="0.5">
+            Hash: ${promptHash.toString(16)}
+          </text>
+        </svg>
+      `;
+
+      // Convert SVG to base64 PNG data
+      const base64Svg = Buffer.from(svg).toString("base64");
+      const dataUrl = `data:image/svg+xml;base64,${base64Svg}`;
+
+      // For simplicity, we'll return the SVG as base64
+      // In a real implementation, you might want to convert SVG to PNG using canvas
+      const svgBuffer = Buffer.from(svg);
+      const base64Data = svgBuffer.toString("base64");
+
+      console.log("✅ Fake image generated successfully");
+      return base64Data;
+    } catch (error) {
+      console.error("❌ Error generating fake image:", error);
+
+      // Ultimate fallback - minimal placeholder
       const placeholderImage =
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
 
       return placeholderImage;
     }
+  }
+
+  /**
+   * Simple hash function for deterministic color schemes
+   */
+  private simpleHash(str: string): number {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash);
+  }
+
+  /**
+   * Get color scheme based on hash
+   */
+  private getColorScheme(hash: number): {
+    primary: string;
+    secondary: string;
+    accent: string;
+    text: string;
+  } {
+    const schemes = [
+      {
+        primary: "#1e3a8a",
+        secondary: "#3b82f6",
+        accent: "#fbbf24",
+        text: "#ffffff",
+      }, // Blue theme
+      {
+        primary: "#7c2d12",
+        secondary: "#dc2626",
+        accent: "#f59e0b",
+        text: "#ffffff",
+      }, // Red theme
+      {
+        primary: "#14532d",
+        secondary: "#16a34a",
+        accent: "#84cc16",
+        text: "#ffffff",
+      }, // Green theme
+      {
+        primary: "#581c87",
+        secondary: "#9333ea",
+        accent: "#a855f7",
+        text: "#ffffff",
+      }, // Purple theme
+      {
+        primary: "#7c2d12",
+        secondary: "#ea580c",
+        accent: "#f97316",
+        text: "#ffffff",
+      }, // Orange theme
+    ];
+
+    return schemes[hash % schemes.length];
+  }
+
+  /**
+   * Escape XML special characters
+   */
+  private escapeXml(str: string): string {
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
   /**

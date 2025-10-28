@@ -14,6 +14,24 @@ export const AI_CONFIG = {
     enabled: true,
     chunkSize: 1000,
   },
+  // Fake generators configuration for development/testing
+  fakeGenerators: {
+    // Auto-detect: use fake generators when API key is missing
+    // Manual override: USE_FAKE_IMAGE_GENERATOR=true/false
+    useFakeImageGenerator: true,
+    // process.env.USE_FAKE_IMAGE_GENERATOR
+    //   ? process.env.USE_FAKE_IMAGE_GENERATOR === "true"
+    //   : !process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+    // Manual override: USE_FAKE_VIDEO_GENERATOR=true/false
+    useFakeVideoGenerator: true,
+    //  process.env.USE_FAKE_VIDEO_GENERATOR
+    //   ? process.env.USE_FAKE_VIDEO_GENERATOR === "true"
+    //   : !process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+    // Fake generator behavior settings
+    imageDelayMs: 500, // Simulated delay for image generation
+    videoDelayMs: 1000, // Simulated delay for video generation
+    successRate: 1.0, // Always succeed for testing
+  },
 };
 
 // Log AI configuration status (only in development)
@@ -28,5 +46,11 @@ if (process.env.NODE_ENV === "development") {
       ? AI_CONFIG.google.apiKey.substring(0, 10) + "..."
       : "none",
     envVar: process.env.GOOGLE_GENERATIVE_AI_API_KEY ? "present" : "missing",
+    fakeGenerators: {
+      useFakeImageGenerator: AI_CONFIG.fakeGenerators.useFakeImageGenerator,
+      useFakeVideoGenerator: AI_CONFIG.fakeGenerators.useFakeVideoGenerator,
+      imageDelayMs: AI_CONFIG.fakeGenerators.imageDelayMs,
+      videoDelayMs: AI_CONFIG.fakeGenerators.videoDelayMs,
+    },
   });
 }

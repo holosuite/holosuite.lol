@@ -458,7 +458,7 @@ export default function SimulationPage({
                 <PromptInputAttachments>
                   {(attachment) => <PromptInputAttachment data={attachment} />}
                 </PromptInputAttachments>
-                <PromptInputTextarea placeholder="Describe your simulation idea or manage holograms (e.g., 'create hologram Captain Nova', 'update hologram wardrobe', 'remove hologram Dr. Smith')..." />
+                <PromptInputTextarea placeholder="Describe your simulation idea or manage characters (e.g., 'create character Captain Nova', 'update character wardrobe', 'remove character Dr. Smith')..." />
                 <PromptInputFooter>
                   <PromptInputTools>
                     <PromptInputActionMenu>
