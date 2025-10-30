@@ -1,5 +1,7 @@
 # `holosuite.lol`
 
+[![YouTube Video jXPO7W-vM0Y](https://img.youtube.com/vi/jXPO7W-vM0Y/maxresdefault.jpg)](https://www.youtube.com/watch?v=jXPO7W-vM0Y)
+
 A platform for creating and sharing immersive simulation experiences powered by AI.
 
 ## Technical Overview
