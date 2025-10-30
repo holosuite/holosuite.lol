@@ -18,22 +18,8 @@ export function PromptSubmission() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/simulations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ prompt }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create simulation");
-      }
-
-      const { simulationId } = await response.json();
-
-      // Navigate directly to the new simulation page
-      router.push(`/simulations/${simulationId}`);
+      // Navigate to coming soon page instead of creating a simulation
+      router.push("/coming-soon");
     } catch (error) {
       console.error("Error creating simulation:", error);
       setIsSubmitting(false);

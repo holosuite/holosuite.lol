@@ -1,5 +1,4 @@
 import { PromptSubmission } from "@/components/prompt-submission";
-import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -58,12 +57,6 @@ export default function Home() {
             >
               How It Works
             </a>
-            <Link
-              href="/simulations"
-              className="text-foreground hover:text-primary transition"
-            >
-              Simulations
-            </Link>
           </div>
         </div>
       </nav>
@@ -445,12 +438,6 @@ export default function Home() {
               >
                 Create Simulation
               </a>
-              <Link
-                href="/simulations"
-                className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-medium rounded-full px-8 py-4 text-lg transition-all hover:scale-105"
-              >
-                Browse Library
-              </Link>
             </div>
             <div className="pt-8 border-t border-border">
               <p className="text-2xl font-mono text-primary tracking-wide">

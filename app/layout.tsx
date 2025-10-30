@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import ClientBody from "./client-body";
 import Script from "next/script";
-import "@/lib/ai-config"; // This will execute the console.log statements
 
 const inter = Inter({
   variable: "--font-inter",
