@@ -6,6 +6,7 @@ import {
   SimulationModel,
 } from "@/lib/database";
 import { videoGenerationService } from "@/lib/ai-video-service";
+import { AI_CONFIG } from "@/lib/ai-config";
 
 // Type definition for turn objects
 interface TurnObject {
@@ -101,7 +102,44 @@ export async function POST(
       storyTitle, // Use the actual story title
     );
 
-    // Update video record with operation object (stored as JSON string)
+    // If using fake generator or operation already completed, finalize immediately
+    if (
+      AI_CONFIG.fakeGenerators.useFakeVideoGenerator ||
+      videoResult.status === "completed"
+    ) {
+      try {
+        // Extract video file (fake path embeds a recognizable marker)
+        const videoFile = (
+          videoResult.operation as {
+            response?: { generatedVideos?: Array<{ video?: unknown }> };
+          }
+        )?.response?.generatedVideos?.[0]?.video;
+
+        const blobUrl = await videoGenerationService.downloadAndStoreVideo(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (videoFile as any) || ({ _isFakeVideo: true } as any),
+          videoId,
+        );
+
+        await VideoModel.updateStatus(videoId, "completed", blobUrl);
+
+        return NextResponse.json({
+          videoId,
+          status: "completed",
+          videoUrl: blobUrl,
+          message: "Video generation completed (fake)",
+        });
+      } catch (e) {
+        console.error("❌ Error finalizing fake video:", e);
+        await VideoModel.updateStatus(videoId, "failed");
+        return NextResponse.json(
+          { error: "Failed to finalize fake video" },
+          { status: 500 },
+        );
+      }
+    }
+
+    // Otherwise, store the operation and return generating
     VideoModel.updateStatus(
       videoId,
       "generating",

@@ -554,32 +554,40 @@ export class VideoModel {
   }
 
   static async updateStatus(id: string, status: string, videoUrl?: string) {
-    const updates = [
-      "status = " + sql`${status}`,
-      "updated_at = CURRENT_TIMESTAMP",
-    ];
-
-    if (videoUrl) {
-      updates.push("video_url = " + sql`${videoUrl}`);
+    // Build a safe, parameterized UPDATE without string concatenation
+    if (videoUrl && status === "completed") {
+      await sql`
+        UPDATE videos
+        SET status = ${status}, video_url = ${videoUrl}, completed_at = CURRENT_TIMESTAMP
+        WHERE id = ${id}
+      `;
+    } else if (videoUrl) {
+      await sql`
+        UPDATE videos
+        SET status = ${status}, video_url = ${videoUrl}
+        WHERE id = ${id}
+      `;
+    } else if (status === "completed") {
+      await sql`
+        UPDATE videos
+        SET status = ${status}, completed_at = CURRENT_TIMESTAMP
+        WHERE id = ${id}
+      `;
+    } else {
+      await sql`
+        UPDATE videos
+        SET status = ${status}
+        WHERE id = ${id}
+      `;
     }
 
-    if (status === "completed") {
-      updates.push("completed_at = CURRENT_TIMESTAMP");
-    }
-
-    await sql`
-      UPDATE videos 
-      SET ${sql.unsafe(updates.join(", "))}
-      WHERE id = ${id}
-    `;
-
-    console.log("✅ Video status update result:", { id, status });
+    console.log("✅ Video status updated:", { id, status, videoUrl: videoUrl || null });
   }
 
   static async updateUrl(id: string, videoUrl: string) {
     await sql`
       UPDATE videos 
-      SET video_url = ${videoUrl}, updated_at = CURRENT_TIMESTAMP
+      SET video_url = ${videoUrl}
       WHERE id = ${id}
     `;
     console.log("✅ Video URL updated:", { id, videoUrl });
