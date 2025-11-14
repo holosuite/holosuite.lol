@@ -50,12 +50,20 @@ export default function Home() {
             </div>
             <div className="w-1.5 h-1.5 rounded-full bg-primary -ml-0.5 mb-3"></div>
           </div>
-          <div className="hidden md:flex items-center gap-8">
+          <div className="flex items-center gap-4 md:gap-8">
             <a
               href="#how-it-works"
-              className="text-foreground hover:text-primary transition"
+              className="hidden md:block text-foreground hover:text-primary transition"
             >
               How It Works
+            </a>
+            <a
+              href="https://forms.gle/6tv7kgUvNFWHbS7g6"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-full px-4 py-2 md:px-6 text-sm transition-all hover:scale-105"
+            >
+              Join Waitlist
             </a>
           </div>
         </div>
@@ -433,8 +441,16 @@ export default function Home() {
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a
-                href="#"
+                href="https://forms.gle/6tv7kgUvNFWHbS7g6"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-full px-8 py-4 text-lg transition-all hover:scale-105"
+              >
+                Join Waitlist for Early Access
+              </a>
+              <a
+                href="#"
+                className="border border-border hover:bg-accent hover:text-accent-foreground font-medium rounded-full px-8 py-4 text-lg transition-all hover:scale-105"
               >
                 Create Simulation
               </a>
